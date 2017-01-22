@@ -17,8 +17,6 @@ from setuptools import setup, find_packages
 
 # Merci Sam & Max : http://sametmax.com/creer-un-setup-py-et-mettre-sa-bibliotheque-python-en-ligne-sur-pypi/
 
-import opv_directorymanager
-
 setup(
     name='opv_tasks',
     version='0.0.1',
