@@ -12,5 +12,30 @@
 # You should have received a copy of the GNU General Public License along
 # with this program. If not, see <http://www.gnu.org/licenses/>.
 
-from opv_tasks.task import *
-from opv_tasks.utils import run_cli
+# Contributors: Christophe NOUCHET <christophe.nouchet@openpathview.fr>
+# Email: team@openpathview.fr
+# Description: Abstract class for representing task, you must redefine the run methods.
+
+from opv_tasks import Task
+from opv_tasks import run_cli
+
+
+import json
+
+
+class ExampleTask(Task):
+    """
+    Example task
+    """
+
+    def run(self, options={}):
+        """
+        Run the task
+        :param options: Options to use
+        :return:
+        :raise
+        """
+        print("On fait ce qu'on a faire ici")
+        run_cli("echo", ["Bijour les amis"])
+        run_cli(["ls", "-lah"])
+        return json.dumps({})

@@ -12,5 +12,24 @@
 # You should have received a copy of the GNU General Public License along
 # with this program. If not, see <http://www.gnu.org/licenses/>.
 
-from opv_tasks.task import *
-from opv_tasks.utils import run_cli
+# Contributors: Christophe NOUCHET <christophe.nouchet@openpathview.fr>
+# Email: team@openpathview.fr
+# Description: Just a little workaround to launch cli command
+
+import sys
+import subprocess
+
+
+def run_cli(cmd, args=[], stdout=sys.stdout, stderr=subprocess.STDOUT):
+    """
+    Run a command
+    :param cmd: Command to use
+    :param args: Args to pass to the command
+    :param stdout:
+    :param stderr:
+    :return: return code of the cli
+    """
+    my_cmd = cmd if isinstance(cmd, list) else [cmd]
+    my_args = args if isinstance(args, list) else [args]
+    ret = subprocess.run(my_cmd + my_args, stdout=stdout,stderr=stderr)
+    return ret.returncode
