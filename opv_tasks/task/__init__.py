@@ -13,3 +13,4 @@
 # with this program. If not, see <http://www.gnu.org/licenses/>.
 
 from opv_tasks.task.task import Task
+from opv_tasks.task.rotatetask import RotateTask
