@@ -75,8 +75,8 @@ class RotateTask(Task):
                         self.rotateToPortrait(pic_path)
 
     def run(self, options={}):
-        if "lotId" in options:
-            self.lot = self._client_requestor.Lot(options["lotId"])
+        if "id" in options:
+            self.lot = self._client_requestor.Lot(options["id"])
             self.rotateToPortraitAll()
 
         return json.dumps({})

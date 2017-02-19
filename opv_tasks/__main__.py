@@ -33,7 +33,7 @@ def main():
         return
 
     task = Task(client_requestor=db_client, opv_directorymanager_client=dir_manager_client)
-    task.run(options={"lotId": arguments['<id>']})
+    task.run(options={"id": arguments['<id>']})
 
 if __name__ == "__main__":
     main()
