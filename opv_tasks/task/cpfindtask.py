@@ -98,11 +98,14 @@ class CpfindTask(Task):
         self.cp.save()
 
     def run(self, options={}):
+        idCp = None
+
         if "lotId" in options:
             self.lot = self._client_requestor.Lot(options["lotId"])
             self.findCP()
+            idCp = self.cp.id
 
-        return json.dumps({})
+        return json.dumps({'idCp': idCp})
 
 
 def main():
