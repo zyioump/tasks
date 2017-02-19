@@ -4,6 +4,27 @@
 
 Write this software
 
+## Requirements
+
+You will need to install :
+```bash
+apt-get install imagemagick
+```
+You also need to have a [https://github.com/OpenPathView/DirectoryManager](DirectoryManager server) and an [https://github.com/OpenPathView/OPV_DBRest](OPV_DBRest server) running.
+These server handle campaings, lot ... data storing.
+
+## Install
+```bash
+pip install -r requirements.txt
+python setup.py install
+```
+
+## Rotate Task
+Will rotate a lot (it's 6 pictures) in portrait mode.
+```bash
+bin/opv-task-rotate 53 --debug
+```
+
 ## License
 
 Copyright (C) 2017 Open Path View, Maison Du Libre <br />

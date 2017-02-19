@@ -29,7 +29,10 @@ setup(
     # Active la prise en compte du fichier MANIFEST.in
     include_package_data=False,
     url='https://github.com/OpenPathView/OPV_Tasks',
-
+    entry_points={
+        'console_scripts': [
+            'opv-task-rotate = opv_tasks.task.rotatetask:main']
+    },
     scripts=[],
 
     license="GPL3",

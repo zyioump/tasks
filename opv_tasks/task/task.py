@@ -16,6 +16,8 @@
 # Email: team@openpathview.fr
 # Description: Abstract class for representing task, you must redefine the run methods.
 
+import sys
+import subprocess
 
 class Task:
     """
@@ -39,3 +41,17 @@ class Task:
         :raise
         """
         raise NotImplementedError
+
+    def _run_cli(self, cmd, args=[], stdout=sys.stdout, stderr=subprocess.STDOUT):
+        """
+        Run a command
+        :param cmd: Command to use
+        :param args: Args to pass to the command
+        :param stdout:
+        :param stderr:
+        :return: return code of the cli
+        """
+        my_cmd = cmd if isinstance(cmd, list) else [cmd]
+        my_args = args if isinstance(args, list) else [args]
+        ret = subprocess.run(my_cmd + my_args, stdout=stdout, stderr=stderr)
+        return ret.returncode
