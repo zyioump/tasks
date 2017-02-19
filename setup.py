@@ -27,7 +27,7 @@ setup(
     long_description=open('README.md').read(),
     install_requires=[],
     # Active la prise en compte du fichier MANIFEST.in
-    include_package_data=False,
+    include_package_data=True,
     url='https://github.com/OpenPathView/OPV_Tasks',
     entry_points={
         'console_scripts': [

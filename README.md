@@ -8,7 +8,7 @@ Write this software
 
 You will need to install :
 ```bash
-apt-get install imagemagick
+apt-get install imagemagick hugin
 ```
 You also need to have a [https://github.com/OpenPathView/DirectoryManager](DirectoryManager server) and an [https://github.com/OpenPathView/OPV_DBRest](OPV_DBRest server) running.
 These server handle campaings, lot ... data storing.

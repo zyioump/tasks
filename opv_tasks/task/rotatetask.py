@@ -92,7 +92,7 @@ class RotateTask(Task):
             self.lot = self._client_requestor.Lot(options["lotId"])
             self.rotateToPortraitAll()
 
-        return json.dumps({})
+        return json.dumps({"lotId": self.lot.id})
 
 
 def main():

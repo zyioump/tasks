@@ -12,6 +12,11 @@
 # You should have received a copy of the GNU General Public License along
 # with this program. If not, see <http://www.gnu.org/licenses/>.
 
-from opv_tasks.utils import run_cli
-from opv_tasks.task import *
-from opv_tasks.const import Const
+# Contributors: Benjamin BERNARD <benjamin.bernard@openpathview.fr>
+# Email: team@openpathview.fr
+# Description: Constant file.
+
+class Const():
+
+    CP_PTO_FILENAME = "project.pto"
+    CP_SEARCHALGO_VERSION = "0.0.1"
