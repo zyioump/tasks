@@ -31,7 +31,7 @@ setup(
     url='https://github.com/OpenPathView/OPV_Tasks',
     entry_points={
         'console_scripts': [
-            'opv-task-rotate = opv_tasks.task.rotatetask:main']
+            'opv-task = opv_tasks.__main__:main']
     },
     scripts=[],
 

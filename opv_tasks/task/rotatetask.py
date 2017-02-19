@@ -15,25 +15,12 @@
 # Contributors: Benjamin BERNARD <benjamin.bernard@openpathview.fr>
 # Email: team@openpathview.fr
 # Description: Manage picture rotation in portrait mode
-""" Roate Task, will rotate pictures from a lot
-
-Usage:
-    opv-task-rotate <id-lot> [--db-rest=<str>] [--dir-manager=<str>] [--debug]
-    opv-task-rotate (-h | --help)
-
-Options:
-    -h --help                Show help.
-    --db-rest=<str>          API rest server [default: http://localhost:5000]
-    --dir-manager=<str>      API for directory manager [default: http://localhost:5001]
-    --debug                  Debug mode.
-"""
 
 from PIL import Image
 import os
 import logging
 import json
 from path import Path
-from docopt import docopt
 
 from opv_tasks.task import Task
 
@@ -93,22 +80,3 @@ class RotateTask(Task):
             self.rotateToPortraitAll()
 
         return json.dumps({})
-
-
-def main():
-    from opv_directorymanagerclient import DirectoryManagerClient, Protocol
-    from potion_client import Client
-
-    arguments = docopt(__doc__)
-    debug = bool(arguments.get('--debug'))
-
-    log_level = logging.DEBUG if debug else logging.INFO
-    logging.getLogger().setLevel(log_level)
-
-    dir_manager_client = DirectoryManagerClient(api_base=arguments['--dir-manager'], default_protocol=Protocol.FTP)
-
-    task = RotateTask(client_requestor=Client(arguments['--db-rest']), opv_directorymanager_client=dir_manager_client)
-    task.run(options={"lotId": arguments['<id-lot>']})
-
-if __name__ == "__main__":
-    main()

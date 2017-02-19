@@ -33,3 +33,11 @@ def run_cli(cmd, args=[], stdout=sys.stdout, stderr=subprocess.STDOUT):
     my_args = args if isinstance(args, list) else [args]
     ret = subprocess.run(my_cmd + my_args, stdout=stdout,stderr=stderr)
     return ret.returncode
+
+def find_task(taskName):
+    try:
+        moduleTask = __import__("opv_tasks.task.{}task".format(taskName))
+        task = getattr(moduleTask, "{}Task".format(taskName.title()))
+        return task
+    except (ImportError, AttributeError):
+        return None # Task not found
