@@ -19,20 +19,21 @@
 from hsi import Panorama, ifstream
 import sys
 import logging
+from path import Path
+import json
 
 logger = logging.getLogger(__name__)
 
+from opv_tasks.const import Const
 from .task import Task
 
 class StitchableTask(Task):
     """
     Set in db isStichable if needed
     """
-    def find_pto(self):
-        return pto_file
 
-    def stichable(self):
-        ifs = ifstream(self.find_pto())
+    def stichable(self, proj_pto):
+        ifs = ifstream(proj_pto)
 
         p = Panorama()
         p.readData(ifs)
@@ -51,10 +52,15 @@ class StitchableTask(Task):
         isStitchable = all(x > minLinksNeeded for x in picLinkNb)
 
         self.cp.nb_cp = nbPoints
-        self.cp.stichable = isStichable
+        self.cp.stichable = isStitchable
+        self.cp.save()
 
     def run(self, options={}):
-        if "lotId" in options:
-            self.cp = self._client_requestor.Cp(options["lotId"])
-            self.stichable()
-            return json.dumps({"lotId": self.cp.id})
+        if "id" in options:
+            self.cp = self._client_requestor.Cp(options["id"])
+            with self._opv_directory_manager.Open(self.cp.pto_dir) as (_, pto_dirpath):
+                proj_pto = Path(pto_dirpath) / Const.CP_PTO_FILENAME
+
+                self.stichable(proj_pto)
+
+            return json.dumps({"id": self.cp.id})

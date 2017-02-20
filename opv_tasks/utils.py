@@ -39,5 +39,7 @@ def find_task(taskName):
         moduleTask = __import__("opv_tasks.task.{}task".format(taskName))
         task = getattr(moduleTask, "{}Task".format(taskName.title()))
         return task
-    except (ImportError, AttributeError):
+    except (ImportError, AttributeError) as e:
+        import pprint
+        pprint.pprint(e)
         return None # Task not found
