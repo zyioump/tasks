@@ -9,6 +9,8 @@ Options:
     --db-rest=<str>          API rest server [default: http://localhost:5000]
     --dir-manager=<str>      API for directory manager [default: http://localhost:5001]
     --debug                  Debug mode.
+
+Task are in: rotate, ...
 """
 import logging
 from docopt import docopt
