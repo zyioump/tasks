@@ -17,3 +17,4 @@ from opv_tasks.task.rotatetask import RotateTask
 from opv_tasks.task.cpfindtask import CpfindTask
 from opv_tasks.task.autooptimisertask import AutooptimiserTask
 from opv_tasks.task.stitchabletask import StitchableTask
+from opv_tasks.task.stitchtask import StitchTask

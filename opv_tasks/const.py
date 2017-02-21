@@ -20,3 +20,4 @@ class Const():
 
     CP_PTO_FILENAME = "project.pto"
     CP_SEARCHALGO_VERSION = "0.0.1"
+    PANO_FILENAME = "panorama.tif"
