@@ -1,4 +1,6 @@
-""" Roate Task, will rotate pictures from a lot
+tasks = ["rotate", "cpfind", "autooptimiser", "stitchable", "stitch", "tiling"]
+
+__doc__ = """ Roate Task, will rotate pictures from a lot
 
 Usage:
     opv-task <task-name> <id> [--db-rest=<str>] [--dir-manager=<str>] [--debug]
@@ -10,13 +12,13 @@ Options:
     --dir-manager=<str>      API for directory manager [default: http://localhost:5001]
     --debug                  Debug mode.
 
-Task are in: rotate, cpfind, autooptimiser, stitchable, stitch, tiling...
-"""
+Task are in: run_all, """ + ', '.join(tasks)
 import logging
 from docopt import docopt
 from opv_directorymanagerclient import DirectoryManagerClient, Protocol
 from potion_client import Client
 from pprint import pprint
+import json
 
 from .utils import find_task
 
@@ -27,16 +29,34 @@ def main():
     log_level = logging.DEBUG if debug else logging.INFO
     logging.getLogger().setLevel(log_level)
 
+    logger = logging.getLogger(__name__)
+
     dir_manager_client = DirectoryManagerClient(api_base=arguments['--dir-manager'], default_protocol=Protocol.FTP)
     db_client = Client(arguments['--db-rest'])
 
-    Task = find_task(arguments['<task-name>'])
-    if not Task:
-        logging.getLogger().error('Task %s not found' % arguments['<task-name>'])
-        return
+    id_task = arguments['<id>']
+    task_name = arguments['<task-name>']
 
-    task = Task(client_requestor=db_client, opv_directorymanager_client=dir_manager_client)
-    pprint(task.run(options={"id": arguments['<id>']}))
+    if task_name == "run_all":
+        for task in tasks:
+            logger.info("Starting task %s" % task)
+
+            out = json.loads(run(dir_manager_client, db_client, task, id_task))
+            id_task = out['id']
+
+            logger.info("End of task %s" % task)
+    else:
+        out = run(dir_manager_client, db_client, task_name, id_task)
+
+    print(out)
+
+def run(dm_c, db_c, task_name, id_task):
+    Task = find_task(task_name)
+    if not Task:
+        raise Exception('Task %s not found' % task_name)
+
+    task = Task(client_requestor=db_c, opv_directorymanager_client=dm_c)
+    return task.run(options={"id": id_task})
 
 if __name__ == "__main__":
     main()
