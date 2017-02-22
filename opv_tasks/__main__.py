@@ -10,7 +10,7 @@ Options:
     --dir-manager=<str>      API for directory manager [default: http://localhost:5001]
     --debug                  Debug mode.
 
-Task are in: rotate, cpfind, autooptimiser, stitchable, ...
+Task are in: rotate, cpfind, autooptimiser, stitchable, tiling...
 """
 import logging
 from docopt import docopt
