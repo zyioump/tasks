@@ -53,9 +53,7 @@ class AutooptimiserTask(Task):
                 options.append(local_tmp_output)  # Add output
                 options.append(local_tmp_pto)  # Add input pto
                 logging.debug("Running : " + "autooptimiser" + " ".join(options))
-                input()
                 self._run_cli("autooptimiser", options)
-                input()
                 self.cp.optimized = True
 
                 os.rename(local_tmp_output, proj_pto)  # Copy back optimized verison
@@ -68,4 +66,4 @@ class AutooptimiserTask(Task):
 
             self.cp.save()
 
-        return json.dumps({})
+        return json.dumps({"id": self.cp.id})

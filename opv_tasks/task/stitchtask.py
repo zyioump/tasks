@@ -39,10 +39,10 @@ class StitchTask(Task):
             pano.move(panorama_path / Const.PANO_FILENAME)
 
             logger.debug("Adding panorama in DB")
-            panorama = self._client_requestor.Panorama()
-            panorama.equirectangular_path = path_uuid
-            panorama.cp = self.cp
-            panorama.save()
+            self.panorama = self._client_requestor.Panorama()
+            self.panorama.equirectangular_path = path_uuid
+            self.panorama.cp = self.cp
+            self.panorama.save()
 
     def run(self, options={}):
         if "id" in options:
@@ -59,4 +59,4 @@ class StitchTask(Task):
 
                     self.stitch(local_tmp_pto)
 
-            return json.dumps({"id": self.cp.id})
+            return json.dumps({"id": self.panorama.id})

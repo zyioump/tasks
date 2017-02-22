@@ -73,9 +73,11 @@ class TilingTask(Task):
                 self.tile.cube_resolution = tile_config['cubeResolution']
 
             self.tile.panorama = self.pano
-
             self.tile.save()
 
+            self.lot = self.pano.cp.lot.tile
+            self.lot = self.tile
+            self.lot.save()
 
 
     def run(self, options={}):
