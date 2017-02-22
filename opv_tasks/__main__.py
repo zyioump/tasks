@@ -16,6 +16,7 @@ import logging
 from docopt import docopt
 from opv_directorymanagerclient import DirectoryManagerClient, Protocol
 from potion_client import Client
+from pprint import pprint
 
 from .utils import find_task
 
@@ -35,7 +36,7 @@ def main():
         return
 
     task = Task(client_requestor=db_client, opv_directorymanager_client=dir_manager_client)
-    task.run(options={"id": arguments['<id>']})
+    pprint(task.run(options={"id": arguments['<id>']}))
 
 if __name__ == "__main__":
     main()
