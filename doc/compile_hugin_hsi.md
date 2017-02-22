@@ -12,7 +12,7 @@ apt-get install swig build-essential autoconf automake1.11 libtool flex bison gd
 
 ## Get hugin latest sources
 
-Download the lastest source code archive [https://sourceforge.net/projects/hugin/files/hugin/](here).
+Download the lastest source code archive [here](https://sourceforge.net/projects/hugin/files/hugin/).
 Extract it :
 ```bash
 mkdir hugin
@@ -53,4 +53,4 @@ Type "help", "copyright", "credits" or "license" for more information.
 >>> import hsi
 ```
 
-Go back to the [../README.mdl](README.md) and add the symbolic link.
+Go back to the [README.md](../README.mdl) and add the symbolic link.

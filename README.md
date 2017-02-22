@@ -10,7 +10,7 @@ You will need to install :
 ```bash
 apt-get install imagemagick hugin
 ```
-You also need to have a [https://github.com/OpenPathView/DirectoryManager](DirectoryManager server) and an [https://github.com/OpenPathView/OPV_DBRest](OPV_DBRest server) running.
+You also need to have a [DirectoryManager server](https://github.com/OpenPathView/DirectoryManager) and an [OPV_DBRest server](https://github.com/OpenPathView/OPV_DBRest) running.
 These server handle campaings, lot ... data storing.
 
 ### Hugin Script Interface (HSI) module
@@ -24,7 +24,7 @@ Type "help", "copyright", "credits" or "license" for more information.
 >>> import hsi
 ```
 
-If you don't have it ... dam you are about to recompile hugin ! To wrap your HSI in the good python version, follow the instructions [doc/compile_hugin_hsi.md](here).
+If you don't have it ... dam you are about to recompile hugin ! To wrap your HSI in the good python version, follow the instructions [here](doc/compile_hugin_hsi.md).
 
 If you have it installed on your system, you need to add it to your python virtual env, the easiest way to do so his to make a symbolic link from your system dist-packages/hsi.py module to venv dist-packages.
 Follow this :
