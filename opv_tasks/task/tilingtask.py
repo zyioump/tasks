@@ -75,8 +75,8 @@ class TilingTask(Task):
             self.tile.panorama = self.pano
             self.tile.save()
 
-            self.lot = self.pano.cp.lot.tile
-            self.lot = self.tile
+            self.lot = self.pano.cp.lot
+            self.lot.tile = self.tile
             self.lot.save()
 
 
