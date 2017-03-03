@@ -24,15 +24,16 @@ import tempfile
 logger = logging.getLogger(__name__)
 
 from opv_tasks.const import Const
+import opv_tasks.third_party.tile
 from .task import Task
 
 class TilingTask(Task):
     """
     Tile the panorama
     """
-    TILESIZE = "512"
-    CUBESIZE = "0"
-    QUALITY = "75"
+    TILESIZE = 512
+    CUBESIZE = 0
+    QUALITY = 75
     PNG = False
 
     def tile(self, pano_path):
@@ -42,15 +43,13 @@ class TilingTask(Task):
         with tempfile.TemporaryDirectory() as output_dirpath:
             output_dirpath = Path(output_dirpath) / "output"
 
-            self._run_cli('python', [script_path,
-                '--output', output_dirpath,
-                '--tilesize', self.TILESIZE,
-                '--cubesize', self.CUBESIZE,
-                '--quality', self.QUALITY
-                ]
-                + (['--png'] if self.PNG else [])
-                + [pano_path]
-                )
+            opv_tasks.third_party.tile.tile(
+                inputFile=pano_path,
+                output=output_dirpath,
+                tileSize=self.TILESIZE,
+                cubeSize=self.CUBESIZE,
+                quality=self.QUALITY,
+                png=self.PNG)
 
             self.tile = self._client_requestor.Tile()
 
