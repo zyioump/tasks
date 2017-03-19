@@ -18,6 +18,7 @@
 
 import sys
 import subprocess
+import logging
 
 class Task:
     """
@@ -42,7 +43,7 @@ class Task:
         """
         raise NotImplementedError
 
-    def _run_cli(self, cmd, args=[], stdout=sys.stdout, stderr=subprocess.STDOUT):
+    def _run_cli(self, cmd, args=[]):
         """
         Run a command
         :param cmd: Command to use
@@ -53,5 +54,13 @@ class Task:
         """
         my_cmd = cmd if isinstance(cmd, list) else [cmd]
         my_args = args if isinstance(args, list) else [args]
-        ret = subprocess.run(my_cmd + my_args, stdout=stdout, stderr=stderr)
-        return ret.returncode
+        proc = subprocess.Popen(
+            my_cmd + my_args,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT
+        )
+        for line in proc.stdout:
+            logging.info(line.decode("utf-8").strip())
+        proc.wait()
+  
+        return proc.returncode
