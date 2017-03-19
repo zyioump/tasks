@@ -15,3 +15,4 @@
 from opv_tasks.utils import run_cli
 from opv_tasks.task import *
 from opv_tasks.const import Const
+from opv_tasks.third_party import *
