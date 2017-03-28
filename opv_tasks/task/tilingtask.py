@@ -24,7 +24,7 @@ import tempfile
 logger = logging.getLogger(__name__)
 
 from opv_tasks.const import Const
-import opv_tasks.third_party.tile
+from opv_tasks.third_party.tile import tile
 from .task import Task
 
 class TilingTask(Task):
@@ -43,7 +43,7 @@ class TilingTask(Task):
         with tempfile.TemporaryDirectory() as output_dirpath:
             output_dirpath = Path(output_dirpath) / "output"
 
-            opv_tasks.third_party.tile.tile(
+            tile(
                 inputFile=pano_path,
                 output=output_dirpath,
                 tileSize=self.TILESIZE,
