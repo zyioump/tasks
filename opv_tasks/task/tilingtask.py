@@ -21,22 +21,23 @@ from path import Path
 import json
 import tempfile
 
-logger = logging.getLogger(__name__)
 
+from .task import Task
 from opv_tasks.const import Const
 from opv_tasks.third_party.tile import tile
-from .task import Task
+
+logger = logging.getLogger(__name__)
 
 class TilingTask(Task):
-    """
-    Tile the panorama
-    """
+    """Tile the panorama."""
+
     TILESIZE = 512
     CUBESIZE = 0
     QUALITY = 75
     PNG = False
 
     def tile(self, pano_path):
+        """A tile."""
 
         script_path = Path(__file__).dirname() / "../3rd/tile.py"
 
@@ -62,7 +63,6 @@ class TilingTask(Task):
                 (output_dirpath / "fallback").move(fallback_location)
                 self.tile.fallback_path = fallback_uuid
 
-
             with open(output_dirpath / "config.json") as fp:
                 tile_config = json.load(fp)["multiRes"]
 
@@ -78,8 +78,8 @@ class TilingTask(Task):
             self.lot.tile = self.tile
             self.lot.save()
 
-
     def run(self, options={}):
+        """Run the tilling task my faverite one."""
         if "id" in options:
             self.pano = self._client_requestor.Panorama(options["id"])
             with self._opv_directory_manager.Open(self.pano.equirectangular_path) as (_, pano_dirpath):
