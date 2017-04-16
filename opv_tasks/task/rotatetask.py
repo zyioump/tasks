@@ -22,6 +22,8 @@ import logging
 import json
 from path import Path
 
+from opv_api_client import RessourceEnum
+
 from opv_tasks.task import Task
 
 
@@ -71,7 +73,7 @@ class RotateTask(Task):
     def run(self, options={}):
         """Run a rotatetask."""
         if "id" in options:
-            self.lot = self._client_requestor.Lot(options["id"])
+            self.lot = self._client_requestor.make(RessourceEnum.lot, *options["id"])
             self.rotateToPortraitAll()
 
         return json.dumps({"id": self.lot.id})

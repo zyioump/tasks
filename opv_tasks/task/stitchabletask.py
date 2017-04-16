@@ -22,6 +22,8 @@ import json
 from path import Path
 from .task import Task
 from hsi import Panorama, ifstream
+from opv_api_client import RessourceEnum
+
 from opv_tasks.const import Const
 
 logger = logging.getLogger(__name__)
@@ -56,7 +58,7 @@ class StitchableTask(Task):
     def run(self, options={}):
         """Run a stichable task with options."""
         if "id" in options:
-            self.cp = self._client_requestor.Cp(options["id"])
+            self.cp = self._client_requestor.make(RessourceEnum.cp, *options["id"])
             with self._opv_directory_manager.Open(self.cp.pto_dir) as (_, pto_dirpath):
                 proj_pto = Path(pto_dirpath) / Const.CP_PTO_FILENAME
 

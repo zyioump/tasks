@@ -16,7 +16,6 @@
 # Email: team@openpathview.fr
 # Description: Abstract class for representing task, you must redefine the run methods.
 
-import sys
 import subprocess
 import logging
 
@@ -64,5 +63,5 @@ class Task:
         for line in proc.stdout:
             logging.info(line.decode("utf-8").strip())
         proc.wait()
-  
+
         return proc.returncode

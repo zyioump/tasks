@@ -43,6 +43,4 @@ def find_task(taskName):
         task = getattr(moduleTask, "{}Task".format(taskName.title()))
         return task
     except (ImportError, AttributeError) as e:
-        import pprint
-        pprint.pprint(e)
         return None  # Task not found

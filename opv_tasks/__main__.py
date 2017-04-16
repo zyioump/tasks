@@ -1,9 +1,16 @@
+import json
+import logging
+from docopt import docopt
+from .utils import find_task
+from opv_directorymanagerclient import DirectoryManagerClient, Protocol
+from opv_api_client import RestClient
+
 tasks = ["rotate", "cpfind", "autooptimiser", "stitchable", "stitch", "tiling"]
 
 __doc__ = """ Roate Task, will rotate pictures from a lot
 
 Usage:
-    opv-task <task-name> <id> [--db-rest=<str>] [--dir-manager=<str>] [--debug]
+    opv-task <task-name> <id> <id-malette> [--db-rest=<str>] [--dir-manager=<str>] [--debug]
     opv-task (-h | --help)
 
 Options:
@@ -13,14 +20,6 @@ Options:
     --debug                  Debug mode.
 
 Task are in: run_all, """ + ', '.join(tasks)
-
-import json
-import logging
-from docopt import docopt
-from .utils import find_task
-from potion_client import Client
-from opv_directorymanagerclient import DirectoryManagerClient, Protocol
-
 
 def main():
     """Main function."""
@@ -33,9 +32,9 @@ def main():
     logger = logging.getLogger(__name__)
 
     dir_manager_client = DirectoryManagerClient(api_base=arguments['--dir-manager'], default_protocol=Protocol.FTP)
-    db_client = Client(arguments['--db-rest'])
+    db_client = RestClient(arguments['--db-rest'])
 
-    id_task = arguments['<id>']
+    id_task = (arguments['<id>'], arguments['<id-malette>'])
     task_name = arguments['<task-name>']
 
     if task_name == "run_all":

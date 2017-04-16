@@ -21,6 +21,8 @@ import logging
 
 from path import Path
 from .task import Task
+from opv_api_client import RessourceEnum
+
 from opv_tasks.const import Const
 
 logger = logging.getLogger(__name__)
@@ -42,20 +44,24 @@ class StitchTask(Task):
             pano.move(panorama_path / Const.PANO_FILENAME)
 
             logger.debug("Adding panorama in DB")
-            self.panorama = self._client_requestor.Panorama()
+            self.panorama = self._client_requestor.make(RessourceEnum.panorama)
+            self.panorama.id_malette = self.cp.id_malette
             self.panorama.equirectangular_path = path_uuid
-            self.panorama.cp = self.cp
-            self.panorama.save()
+            self.panorama.id_cp = self.cp.id_cp
+            self.panorama.id_cp_malette = self.cp.id_malette
+            self.panorama.create()
 
     def run(self, options={}):
         """Run a StitchTask with options."""
         if "id" in options:
-            self.cp = self._client_requestor.Cp(options["id"])
+            self.cp = self._client_requestor.make(RessourceEnum.cp, *options["id"])
 
             with self._opv_directory_manager.Open(self.cp.pto_dir) as (_, pto_dirpath):
                 proj_pto = Path(pto_dirpath) / Const.CP_PTO_FILENAME
 
-                with self._opv_directory_manager.Open(self.cp.lot.pictures_path) as (_, pictures_dir):
+                lot = self._client_requestor.make(RessourceEnum.lot, self.cp.id_lot, self.cp.id_lot_malette)
+
+                with self._opv_directory_manager.Open(lot.pictures_path) as (_, pictures_dir):
                     local_tmp_pto = Path(pictures_dir) / self.TMP_PTONAME
 
                     logging.debug("Copy pto file " + proj_pto + " -> " + local_tmp_pto)
