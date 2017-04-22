@@ -21,7 +21,7 @@ import os
 import json
 from shutil import copyfile
 from path import Path
-from opv_api_client import RessourceEnum
+from opv_api_client import ressources
 
 from opv_tasks.const import Const
 
@@ -72,13 +72,12 @@ class CpfindTask(Task):
     def findCP(self):
         """Initiate cp object and run search."""
         logging.info("Running cpfind for lot : " + str(self.lot.id))
-        self.cp = self._client_requestor.make(RessourceEnum.cp)
+        self.cp = self._client_requestor.make(ressources.Cp)
         self.cp.id_malette = self.lot.id_malette
 
         self.cp.search_algo_version = Const.CP_SEARCHALGO_VERSION
 
-        self.cp.id_lot = self.lot.id_lot
-        self.cp.id_lot_malette = self.lot.id_malette
+        self.cp.lot = self.lot
 
         self.ptoDirMan = self._opv_directory_manager.Open()
         self.cp.pto_dir = self.ptoDirMan.uuid
@@ -93,7 +92,7 @@ class CpfindTask(Task):
         idCp = None
 
         if "id" in options:
-            self.lot = self._client_requestor.make(RessourceEnum.lot, *options["id"])
+            self.lot = self._client_requestor.make(ressources.Lot, *options["id"])
             self.findCP()
             idCp = self.cp.id
 

@@ -21,7 +21,7 @@ from path import Path
 import json
 import tempfile
 
-from opv_api_client import RessourceEnum
+from opv_api_client import ressources
 
 from .task import Task
 from opv_tasks.const import Const
@@ -53,7 +53,7 @@ class TilingTask(Task):
                 quality=self.QUALITY,
                 png=self.PNG)
 
-            self.tile = self._client_requestor.make(RessourceEnum.tile)
+            self.tile = self._client_requestor.make(ressources.Tile)
             self.tile.id_malette = self.pano.id_malette
 
             with self._opv_directory_manager.Open() as (param_uuid, param_location):
@@ -73,21 +73,18 @@ class TilingTask(Task):
                 self.tile.resolution = tile_config['tileResolution']
                 self.tile.cube_resolution = tile_config['cubeResolution']
 
-            self.tile.id_panorama = self.pano.id_panorama
-            self.tile.id_panorama_malette = self.pano.id_malette
+            self.tile.panorama = self.pano
             self.tile.create()
 
-            cp = self._client_requestor.make(RessourceEnum.cp, self.pano.id_cp, self.pano.id_cp_malette)
-            lot = self._client_requestor.make(RessourceEnum.lot, cp.id_lot, cp.id_lot_malette)
+            lot = self.pano.cp.lot
 
-            lot.id_tile = self.tile.id_tile
-            lot.id_tile_malette = self.tile.id_malette
+            lot.id = self.tile.id_tile
             lot.save()
 
     def run(self, options={}):
         """Run the tilling task my faverite one."""
         if "id" in options:
-            self.pano = self._client_requestor.make(RessourceEnum.panorama, *options["id"])
+            self.pano = self._client_requestor.make(ressources.Panorama, *options["id"])
             with self._opv_directory_manager.Open(self.pano.equirectangular_path) as (_, pano_dirpath):
                 pano_path = Path(pano_dirpath) / Const.PANO_FILENAME
 

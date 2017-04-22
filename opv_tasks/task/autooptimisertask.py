@@ -22,7 +22,7 @@ import json
 from path import Path
 from shutil import copyfile
 
-from opv_api_client import RessourceEnum
+from opv_api_client import ressources
 
 from opv_tasks.const import Const
 from opv_tasks.task import Task
@@ -40,7 +40,7 @@ class AutooptimiserTask(Task):
         with self._opv_directory_manager.Open(self.cp.pto_dir) as (_, pto_dirpath):
             proj_pto = Path(pto_dirpath) / Const.CP_PTO_FILENAME
 
-            lot = self._client_requestor.make(RessourceEnum.lot, self.cp.id_lot, self.cp.id_lot_malette)
+            lot = self._client_requestor.make(ressources.Lot, *self.cp.lot.id.values())
 
             with self._opv_directory_manager.Open(lot.pictures_path) as (_, pictures_dir):
                 local_tmp_pto = Path(pictures_dir) / self.TMP_PTONAME
@@ -63,7 +63,7 @@ class AutooptimiserTask(Task):
     def run(self, options={}):
         """Run auto optimiser task."""
         if "id" in options:
-            self.cp = self._client_requestor.make(RessourceEnum.cp, *options["id"])
+            self.cp = self._client_requestor.make(ressources.Cp, *options["id"])
             self.optimise()
 
             self.cp.save()

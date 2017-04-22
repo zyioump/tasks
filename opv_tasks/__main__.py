@@ -42,7 +42,7 @@ def main():
             logger.info("Starting task %s" % task)
 
             out = json.loads(run(dir_manager_client, db_client, task, id_task))
-            id_task = out['id']
+            id_task = tuple(out['id'].values())
 
             logger.info("End of task %s" % task)
     else:
