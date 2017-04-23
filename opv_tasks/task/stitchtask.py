@@ -17,15 +17,12 @@
 # Description: Stitch the panorama
 
 import json
-import logging
 
 from path import Path
 from .task import Task
 from opv_api_client import ressources
 
 from opv_tasks.const import Const
-
-logger = logging.getLogger(__name__)
 
 
 class StitchTask(Task):
@@ -42,12 +39,12 @@ class StitchTask(Task):
             pano_tif = proj_pto.dirname().glob('*.tif')[0]
             pano = panorama_path / Const.PANO_FILENAME
 
-            logger.debug("Converting and moving pano from tif -> %s" % (panorama_path / Const.PANO_FILENAME))
+            self.logger.debug("Converting and moving pano from tif -> %s" % (panorama_path / Const.PANO_FILENAME))
             self._run_cli("convert", [pano_tif, pano])
 
             pano_tif.remove()  # remove tif to save place and transfer time
 
-            logger.debug("Adding panorama in DB")
+            self.logger.debug("Adding panorama in DB")
             self.panorama = self._client_requestor.make(ressources.Panorama)
             self.panorama.id_malette = self.cp.id_malette
             self.panorama.equirectangular_path = path_uuid
@@ -65,7 +62,7 @@ class StitchTask(Task):
                 with self._opv_directory_manager.Open(self.cp.lot.pictures_path) as (_, pictures_dir):
                     local_tmp_pto = Path(pictures_dir) / self.TMP_PTONAME
 
-                    logging.debug("Copy pto file " + proj_pto + " -> " + local_tmp_pto)
+                    self.logger.debug("Copy pto file " + proj_pto + " -> " + local_tmp_pto)
                     proj_pto.copyfile(local_tmp_pto)
 
                     self.stitch(local_tmp_pto)

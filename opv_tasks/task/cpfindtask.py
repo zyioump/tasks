@@ -16,7 +16,6 @@
 # Email: team@openpathview.fr
 # Description: Find control points using hugin cpfind.
 
-import logging
 import os
 import json
 from shutil import copyfile
@@ -54,24 +53,24 @@ class CpfindTask(Task):
         with self._opv_directory_manager.Open(self.lot.pictures_path) as (_, pictures_dir):
             local_tmp_pto = Path(pictures_dir) / self.TMP_PTONAME
             tmp_output_pto = Path(pictures_dir) / self.TMP_OUTPUT
-            logging.debug("Copy base template " + base_pto_path + " -> " + local_tmp_pto)
+            self.logger.debug("Copy base template " + base_pto_path + " -> " + local_tmp_pto)
             copyfile(base_pto_path, local_tmp_pto)  # need pto to be local as pictures path are relatives
 
             options = list(self.CPFIND_OPTIONS)
             options.append('-o')  # output pto file
             options.append(tmp_output_pto)
             options.append(local_tmp_pto)          # input pto file
-            logging.debug("Starting CP search with options" + " ".join(options))
+            self.logger.debug("Starting CP search with options" + " ".join(options))
             self._run_cli("cpfind", options)
 
             cp_pto_dest = Path(self.ptoDirMan.local_directory) / Const.CP_PTO_FILENAME
-            logging.debug("Moving " + local_tmp_pto + " -> " + cp_pto_dest + " (UUID : " + self.ptoDirMan.uuid + ")")
+            self.logger.debug("Moving " + local_tmp_pto + " -> " + cp_pto_dest + " (UUID : " + self.ptoDirMan.uuid + ")")
             os.unlink(local_tmp_pto)  # remove based file
             os.rename(tmp_output_pto, cp_pto_dest)  # copies PTO to is't directory man
 
     def findCP(self):
         """Initiate cp object and run search."""
-        logging.info("Running cpfind for lot : " + str(self.lot.id))
+        self.logger.info("Running cpfind for lot : " + str(self.lot.id))
         self.cp = self._client_requestor.make(ressources.Cp)
         self.cp.id_malette = self.lot.id_malette
 

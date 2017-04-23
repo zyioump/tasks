@@ -16,7 +16,6 @@
 # Email: team@openpathview.fr
 # Description: Tile the Panorama
 
-import logging
 from path import Path
 import json
 import tempfile
@@ -26,8 +25,6 @@ from opv_api_client import ressources
 from .task import Task
 from opv_tasks.const import Const
 from opv_tasks.third_party.tile import tile
-
-logger = logging.getLogger(__name__)
 
 class TilingTask(Task):
     """Tile the panorama."""

@@ -16,7 +16,6 @@
 # Email: team@openpathview.fr
 # Description: Set in db isStichable if needed
 
-import logging
 import json
 
 from path import Path
@@ -25,9 +24,6 @@ from hsi import Panorama, ifstream
 from opv_api_client import ressources
 
 from opv_tasks.const import Const
-
-logger = logging.getLogger(__name__)
-
 
 class StitchableTask(Task):
     """Set in db isStichable if needed."""

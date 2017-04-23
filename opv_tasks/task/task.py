@@ -18,7 +18,7 @@
 
 import subprocess
 import logging
-
+import threading
 
 class Task:
     """An abstract class, you must redefine the run method."""
@@ -33,6 +33,12 @@ class Task:
         self._client_requestor = client_requestor
         self._opv_directory_manager = opv_directorymanager_client
 
+        logger_name = "opv_task." + self.__class__.__name__
+        shell_logger_name = logger_name + '.shell'
+
+        self.logger = logging.getLogger(logger_name)  # Used in subclasses
+        self.shell_logger = logging.getLogger(shell_logger_name)  # Used when you use _run_cli
+
     def run(self, options={}):
         """
         Run the task.
@@ -43,14 +49,14 @@ class Task:
         """
         raise NotImplementedError
 
-    def _run_cli(self, cmd, args=[]):
+    def _run_cli(self, cmd, args=[], stdout_level=logging.INFO, stderr_level=logging.WARNING):
         """
         Run a command.
 
         :param cmd: Command to use
         :param args: Args to pass to the command
-        :param stdout:
-        :param stderr:
+        :param stdout_level: Level to use to log the stdout (INFO, DEBUG...) -> same as in the logging module
+        :param stderr_level: Same as stdout_level, for stderr
         :return: return code of the cli
         """
         my_cmd = cmd if isinstance(cmd, list) else [cmd]
@@ -58,10 +64,18 @@ class Task:
         proc = subprocess.Popen(
             my_cmd + my_args,
             stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT
+            stderr=subprocess.PIPE,
+            universal_newlines=True
         )
-        for line in proc.stdout:
-            logging.info(line.decode("utf-8").strip())
+
+        def log_output(handler, logger, level):
+            for line in handler:
+                logger.log(level, line.strip())
+
+        # Use threads to log in the same time
+        threading.Thread(target=log_output, args=[proc.stdout, self.shell_logger, stdout_level]).start()
+        threading.Thread(target=log_output, args=[proc.stderr, self.shell_logger, stderr_level]).start()
+
         proc.wait()
 
         return proc.returncode

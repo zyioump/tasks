@@ -17,7 +17,6 @@
 # Description: Optimise CP geometrie.
 
 import os
-import logging
 import json
 from path import Path
 from shutil import copyfile
@@ -46,14 +45,14 @@ class AutooptimiserTask(Task):
                 local_tmp_pto = Path(pictures_dir) / self.TMP_PTONAME
                 local_tmp_output = Path(pictures_dir) / self.TMP_OUTPUT
 
-                logging.debug("Copy pto file " + proj_pto + " -> " + local_tmp_pto)
+                self.logger.debug("Copy pto file " + proj_pto + " -> " + local_tmp_pto)
                 copyfile(proj_pto, local_tmp_pto)
 
                 options = list(self.AUTOOPTIMISER_OPTIONS)
                 options.append("-o")
                 options.append(local_tmp_output)  # Add output
                 options.append(local_tmp_pto)  # Add input pto
-                logging.debug("Running : " + "autooptimiser" + " ".join(options))
+                self.logger.debug("Running : " + "autooptimiser" + " ".join(options))
                 self._run_cli("autooptimiser", options)
                 self.cp.optimized = True
 

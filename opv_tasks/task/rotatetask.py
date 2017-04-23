@@ -18,7 +18,6 @@
 
 from PIL import Image
 import os
-import logging
 import json
 from path import Path
 
@@ -44,7 +43,7 @@ class RotateTask(Task):
     def isPortrait(self, picPath):
         """Return true if a picture is in portrait mode."""
         x, y = self.getPictureSizes(picPath)
-        logging.debug("Width: " + str(x) + "  Height: " + str(y))
+        self.logger.debug("Width: " + str(x) + "  Height: " + str(y))
         return x < y
 
     def rotatePic(self, rotation_angle, picPath):
@@ -53,7 +52,7 @@ class RotateTask(Task):
 
         Modify picture in place !
         """
-        logging.debug("Rotate pic " + picPath + " angle : " + str(rotation_angle))
+        self.logger.debug("Rotate pic " + picPath + " angle : " + str(rotation_angle))
         self._run_cli('mogrify', ["-rotate", str(rotation_angle), picPath])  # TODO : test
 
     def rotateToPortrait(self, picPath):
