@@ -39,9 +39,13 @@ class StitchTask(Task):
         with self._opv_directory_manager.Open() as (path_uuid, panorama_path):
             panorama_path = Path(panorama_path)
 
-            pano = proj_pto.dirname().glob('*.tif')[0]
-            logger.debug("Moving pano -> %s" % (panorama_path / Const.PANO_FILENAME))
-            pano.move(panorama_path / Const.PANO_FILENAME)
+            pano_tif = proj_pto.dirname().glob('*.tif')[0]
+            pano = panorama_path / Const.PANO_FILENAME
+
+            logger.debug("Converting and moving pano from tif -> %s" % (panorama_path / Const.PANO_FILENAME))
+            self._run_cli("convert", [pano_tif, pano])
+
+            pano_tif.remove()  # remove tif to save place and transfer time
 
             logger.debug("Adding panorama in DB")
             self.panorama = self._client_requestor.make(ressources.Panorama)

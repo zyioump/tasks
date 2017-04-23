@@ -39,9 +39,6 @@ class TilingTask(Task):
 
     def tile(self, pano_path):
         """A tile."""
-
-        script_path = Path(__file__).dirname() / "../3rd/tile.py"
-
         with tempfile.TemporaryDirectory() as output_dirpath:
             output_dirpath = Path(output_dirpath) / "output"
 
