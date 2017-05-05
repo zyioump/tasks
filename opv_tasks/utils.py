@@ -37,7 +37,7 @@ def run_cli(cmd, args=[], stdout=sys.stdout, stderr=subprocess.STDOUT):
 
 
 def find_task(taskName):
-    """Find the atsk with taskName."""
+    """Find the task with taskName."""
     try:
         moduleTask = __import__("opv_tasks.task.{}task".format(taskName))
         task = getattr(moduleTask, "{}Task".format(taskName.title()))

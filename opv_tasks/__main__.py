@@ -5,7 +5,7 @@ from .utils import find_task
 from opv_directorymanagerclient import DirectoryManagerClient, Protocol
 from opv_api_client import RestClient
 
-tasks = ["rotate", "cpfind", "autooptimiser", "stitchable", "stitch", "tiling"]
+tasks = ["rotate", "cpfind", "autooptimiser", "stitchable", "stitch", "photosphere", "tiling"]
 
 __doc__ = """ Roate Task, will rotate pictures from a lot
 
