@@ -25,7 +25,10 @@ setup(
     author_email="team@openpathview.fr",
     description="Open Path View Tasks",
     long_description=open('README.md').read(),
-    install_requires=[],
+    install_requires=["path.py",
+                      "docopt",
+                      "pillow",
+                      "python-xmp-toolkit"],
     # Active la prise en compte du fichier MANIFEST.in
     include_package_data=True,
     url='https://github.com/OpenPathView/OPV_Tasks',
