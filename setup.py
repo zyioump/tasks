@@ -25,10 +25,17 @@ setup(
     author_email="team@openpathview.fr",
     description="Open Path View Tasks",
     long_description=open('README.md').read(),
+    dependency_links=[
+        "git+https://github.com/OpenPathView/OPV_DBRest-client.git#egg=opv_api_client-0.2",
+        "git+https://github.com/OpenPathView/DirectoryManagerClient.git#egg=opv_directorymanagerclient-0.1"
+    ],
     install_requires=["path.py",
                       "docopt",
                       "pillow",
-                      "python-xmp-toolkit"],
+                      "python-xmp-toolkit",
+                      "opv_api_client",
+                      "opv_directorymanagerclient"
+                      ],
     # Active la prise en compte du fichier MANIFEST.in
     include_package_data=True,
     url='https://github.com/OpenPathView/OPV_Tasks',
