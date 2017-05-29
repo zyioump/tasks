@@ -42,7 +42,10 @@ def main():
             logger.info("Starting task %s" % task)
 
             out = json.loads(run(dir_manager_client, db_client, task, id_task))
-            id_task = tuple(out['id'].values())
+            id_malette = out['id']['id_malette']
+            del out['id']['id_malette']
+            id_ressource = next(iter(out['id'].values()))
+            id_task = (id_ressource, id_malette)
 
             logger.info("End of task %s" % task)
     else:
