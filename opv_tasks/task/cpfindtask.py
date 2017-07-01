@@ -24,7 +24,7 @@ from opv_api_client import ressources
 
 from opv_tasks.const import Const
 
-from opv_tasks.task import Task
+from opv_tasks.task import Task, TaskReturn, TaskStatusCode
 
 
 class CpfindTask(Task):
@@ -33,6 +33,8 @@ class CpfindTask(Task):
 
     As they need to be in portrait mode.
     """
+
+    TASK_NAME = "cpfind"
 
     BASE_TEMPLATE_REL_PATH = "../ressources/base.pto"
     TMP_PTONAME = "cp.pto"
@@ -61,7 +63,11 @@ class CpfindTask(Task):
             options.append(tmp_output_pto)
             options.append(local_tmp_pto)          # input pto file
             self.logger.debug("Starting CP search with options" + " ".join(options))
-            self._run_cli("cpfind", options)
+            exitCode = self._run_cli("cpfind", options)
+            self.logger.debug("cpfind exit code : " + str(exitCode))
+
+            if exitCode != 0:
+                raise CpFindException(options)
 
             cp_pto_dest = Path(self.ptoDirMan.local_directory) / Const.CP_PTO_FILENAME
             self.logger.debug("Moving " + local_tmp_pto + " -> " + cp_pto_dest + " (UUID : " + self.ptoDirMan.uuid + ")")
@@ -86,13 +92,34 @@ class CpfindTask(Task):
         self.ptoDirMan.save()
         self.cp.create()
 
+        self.logger.debug("Created CP :" + repr(self.cp))
+
     def run(self, options={}):
         """Run Cp find task."""
-        idCp = None
 
-        if "id" in options:
-            self.lot = self._client_requestor.make(ressources.Lot, *options["id"])
-            self.findCP()
-            idCp = self.cp.id
+        if "id_lot" in options and "id_malette" in options:
+            self.taskReturn = TaskReturn(taskName=self.TASK_NAME, inputData=options)
+            self.lot = self._client_requestor.make(ressources.Lot, options['id_lot'], options['id_malette'])
+            try:
+                self.findCP()
+            except CpFindException as e:
+                self.taskReturn.statusCode = TaskStatusCode.ERROR
+                self.taskReturn.error = "cpfind failled for lot : " + str(self.lot.id) + " with de following cmd options : " + str(e.cliOptions)
+                self.logger.error(self.taskReturn.error)
 
-        return json.dumps({'id': idCp})
+                # TODO handle more I/O exception
+
+            self.taskReturn.outputData = self.cp.id
+
+        return self.taskReturn
+
+
+class CpFindException(Exception):
+    """
+    Raised when cpfind cmd failled.
+    """
+    def __init__(self, cliOptions):
+        self.cliOptions = cliOptions
+
+    def __str__(self):
+        return "cpfind failled with the following options : " + repr(copyfile)

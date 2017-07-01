@@ -44,7 +44,7 @@ class Task:
         Run the task.
 
         :param options: Options to use
-        :return:
+        :return: TaskReturn
         :raise
         """
         raise NotImplementedError

@@ -22,7 +22,6 @@ from path import Path
 from .task import Task
 from hsi import Panorama, ifstream
 from opv_api_client import ressources
-
 from opv_tasks.const import Const
 
 class StitchableTask(Task):
@@ -45,16 +44,20 @@ class StitchableTask(Task):
             nbPoints += 1
         minLinksNeeded = 4
 
+        self.logger.debug("Computing stitchability")
         isStitchable = all(x > minLinksNeeded for x in picLinkNb)
 
         self.cp.nb_cp = nbPoints
         self.cp.stichable = isStitchable
         self.cp.save()
 
+        self.logger.debug("CP : " + str(self.cp))
+
     def run(self, options={}):
         """Run a stichable task with options."""
         if "id" in options:
             self.cp = self._client_requestor.make(ressources.Cp, *options["id"])
+            self.logger.debug("CP : " + str(self.cp))
             with self._opv_directory_manager.Open(self.cp.pto_dir) as (_, pto_dirpath):
                 proj_pto = Path(pto_dirpath) / Const.CP_PTO_FILENAME
 

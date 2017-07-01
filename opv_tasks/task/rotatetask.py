@@ -18,12 +18,13 @@
 
 from PIL import Image
 import os
-import json
 from path import Path
 
 from opv_api_client import ressources
 
 from opv_tasks.task import Task
+from opv_tasks.task import TaskReturn
+from opv_tasks.task import TaskStatusCode
 
 
 class RotateTask(Task):
@@ -32,6 +33,8 @@ class RotateTask(Task):
 
     As they need to be in portrait mode.
     """
+
+    TASK_NAME = "rotate"
 
     def getPictureSizes(self, picPath):
         """Return (width, height) of the specified picture (picPath)."""
@@ -53,7 +56,10 @@ class RotateTask(Task):
         Modify picture in place !
         """
         self.logger.debug("Rotate pic " + picPath + " angle : " + str(rotation_angle))
-        self._run_cli('mogrify', ["-rotate", str(rotation_angle), picPath])  # TODO : test
+        cli_code = self._run_cli('mogrify', ["-rotate", str(rotation_angle), picPath])
+
+        if cli_code != 0:
+            raise RotateException(picPath, rotation_angle)
 
     def rotateToPortrait(self, picPath):
         """Rotate a picture to portrait format if necessary."""
@@ -67,12 +73,40 @@ class RotateTask(Task):
                 for apnNo in range(0, 6):
                     pic_path = Path(dir_path) / "APN{}.JPG".format(apnNo)
                     if os.path.exists(pic_path):
-                        self.rotateToPortrait(pic_path)
+                        try:
+                            self.rotateToPortrait(pic_path)
+                        except RotateException as e:
+                            self.taskReturn.statusCode = TaskStatusCode.ERROR
+                            self.taskReturn.error = str(e)
+                    else:
+                        self.taskReturn.statusCode = TaskStatusCode.ERROR
+                        self.taskReturn.error = "Picture file for APN" + str(apnNo) + \
+                            " not found (uuid : " + str(uuid) + " / lot.id : " + str(self.lot.id) + ")"
+                        self.logger.error(self.taskReturn.error)
+                        return
 
     def run(self, options={}):
-        """Run a rotatetask."""
-        if "id" in options:
-            self.lot = self._client_requestor.make(ressources.Lot, *options["id"])
+        """
+            Run a rotatetask.
+            Requires id_lot and id_malette as inputData.
+        """
+        if "id_lot" in options and "id_malette" in options:
+            self.taskReturn = TaskReturn(taskName=self.TASK_NAME, inputData=options)
+            self.lot = self._client_requestor.make(ressources.Lot, options['id_lot'], options['id_malette'])
             self.rotateToPortraitAll()
+            self.taskReturn.outputData = options
 
-        return json.dumps({"id": self.lot.id})
+        return self.taskReturn
+
+
+class RotateException(Exception):
+    """
+    Raised when file rotation fail.
+    """
+
+    def __init__(self, filePath, rotationAngle):
+        self.filePath = filePath
+        self.rotationAngle = rotationAngle
+
+    def __str__(self):
+        return "Failled to rotate " + str(self.filePath) + ", with rotation angle : " + str(self.rotationAngle)
