@@ -109,7 +109,11 @@ def tile(inputFile, output, tileSize, cubeSize, quality, png=False, nona=nona):
                     lower = min(i * tileSize + tileSize, size)
                     tile = face.crop([left, upper, right, lower])
                     tile.load()
-                    tile.save(os.path.join(output, str(level), faceLetters[f] + str(i) + '_' + str(j) + extension), quality=quality)
+
+                    newTile = Image.new("RGB", tile.size, (255, 255, 255))
+                    newTile.paste(tile, mask=tile.split()[3])
+
+                    newTile.save(os.path.join(output, str(level), faceLetters[f] + str(i) + '_' + str(j) + extension), quality=quality)
             size = int(size/2)
 
 # Generate fallback tiles
@@ -119,7 +123,11 @@ def tile(inputFile, output, tileSize, cubeSize, quality, png=False, nona=nona):
             os.makedirs(os.path.join(output, 'fallback'))
         face = Image.open(os.path.join(output, faces[f]))
         face = face.resize([1024, 1024], Image.ANTIALIAS)
-        face.save(os.path.join(output, 'fallback', faceLetters[f] + extension), quality=quality)
+
+        newFace = Image.new("RGB", face.size, (255, 255, 255))
+        newFace.paste(face, mask=face.split()[3])
+
+        newFace.save(os.path.join(output, 'fallback', faceLetters[f] + extension), quality=quality)
 
 # Clean up temporary files
     os.remove(os.path.join(output, 'cubic.pto'))
