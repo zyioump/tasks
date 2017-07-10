@@ -29,6 +29,9 @@ from libxmp import XMPFiles, consts
 class PhotosphereTask(Task):
     """Convert the panorama to google's photosphere format"""
 
+    TASK_NAME = "photosphere"
+    requiredArgsKeys = ["id_panorama", "id_malette"]
+
     def convert(self, picture_dir):
         picture_path = picture_dir / Const.PANO_FILENAME
 
@@ -43,7 +46,7 @@ class PhotosphereTask(Task):
 
         xmp.set_property(PHOTOSPHERE_NS, "GPano:ProjectionType", "equirectangular")
 
-        heading_degree = self.panorama.cp.lot.sensors.degrees +  self.panorama.cp.lot.sensors.minutes / 60
+        heading_degree = self.panorama.cp.lot.sensors.degrees + self.panorama.cp.lot.sensors.minutes / 60
         xmp.set_property_float(PHOTOSPHERE_NS, "GPano:PoseHeadingDegrees", heading_degree)
 
         xmp.set_property_int(PHOTOSPHERE_NS, "GPano:CroppedAreaImageWidthPixels", width)
@@ -62,11 +65,13 @@ class PhotosphereTask(Task):
         self.panorama.is_photosphere = True
         self.panorama.save()
 
-    def run(self, options={}):
+    def runWithExceptions(self, options={}):
         """Run a StitchTask with options."""
-        if "id" in options:
-            self.panorama = self._client_requestor.make(ressources.Panorama, *options["id"])
-            with self._opv_directory_manager.Open(self.panorama.equirectangular_path) as (_, picture_path):
-                self.convert(Path(picture_path))
 
-            return json.dumps({"id": self.panorama.id})
+        self.checkArgs(options)
+
+        self.panorama = self._client_requestor.make(ressources.Panorama, options["id_panorama"], options["id_malette"])
+        with self._opv_directory_manager.Open(self.panorama.equirectangular_path) as (_, picture_path):
+            self.convert(Path(picture_path))
+
+        return self.panorama.id

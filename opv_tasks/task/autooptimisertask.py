@@ -17,22 +17,25 @@
 # Description: Optimise CP geometrie.
 
 import os
-import json
 from path import Path
 from shutil import copyfile
 
 from opv_api_client import ressources
 
 from opv_tasks.const import Const
-from opv_tasks.task import Task
+from opv_tasks.task import Task, TaskException
 
 
 class AutooptimiserTask(Task):
     """Optimise CP with cli autooptimiser."""
 
+    TASK_NAME = "autooptimiser"
+
     AUTOOPTIMISER_OPTIONS = ["-a", "-m", "-l", "-s"]
     TMP_PTONAME = "opt.pto"
     TMP_OUTPUT = "out.pto"
+
+    requiredArgsKeys = ["id_cp", "id_malette"]
 
     def optimise(self):
         """Optimise CP."""
@@ -53,18 +56,34 @@ class AutooptimiserTask(Task):
                 options.append(local_tmp_output)  # Add output
                 options.append(local_tmp_pto)  # Add input pto
                 self.logger.debug("Running : " + "autooptimiser" + " ".join(options))
-                self._run_cli("autooptimiser", options)
+                exitCode = self._run_cli("autooptimiser", options)
+
+                if exitCode != 0:
+                    raise AutooptimiserException(cli_options=options)
+
                 self.cp.optimized = True
 
                 os.rename(local_tmp_output, proj_pto)  # Copy back optimized verison
                 os.unlink(local_tmp_pto)
 
-    def run(self, options={}):
+    def runWithExceptions(self, options={}):
         """Run auto optimiser task."""
-        if "id" in options:
-            self.cp = self._client_requestor.make(ressources.Cp, *options["id"])
-            self.optimise()
+        self.checkArgs(options)
 
-            self.cp.save()
+        self.cp = self._client_requestor.make(ressources.Cp, options['id_cp'], options['id_malette'])
 
-        return json.dumps({"id": self.cp.id})
+        self.optimise()
+
+        self.cp.save()
+
+        return self.cp.id     # Return id_cp and id_malette in a dict
+
+class AutooptimiserException(TaskException):
+    """ Raised when there is an optimisation error"""
+
+    def __init__(self, cli_options):
+        """ Exception with command line options """
+        self.cli_options = cli_options
+
+    def getErrorMessage(self):
+        return "autooptimiser failled with the following options : " + repr(self.cli_options)

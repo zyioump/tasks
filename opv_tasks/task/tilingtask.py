@@ -29,6 +29,9 @@ from opv_tasks.third_party.tile import tile
 class TilingTask(Task):
     """Tile the panorama."""
 
+    TASK_NAME = "tiling"
+    requiredArgsKeys = ["id_panorama", "id_malette"]
+
     TILESIZE = 512
     CUBESIZE = 0
     QUALITY = 75
@@ -70,18 +73,31 @@ class TilingTask(Task):
             self.tile.panorama = self.pano
             self.tile.create()
 
+            self.logger.debug("tile")
+            self.logger.debug(self.tile)
+
+            self.logger.debug("panorama")
+            self.logger.debug(self.pano)
+            self.logger.debug("CP")
+            self.pano.cp.get()
+            self.logger.debug(self.pano.cp)
+            self.logger.debug("Lot")
+            self.pano.cp.lot.get()
+            self.logger.debug(self.pano.cp.lot)
             lot = self.pano.cp.lot
 
-            lot.id = self.tile.id_tile
+            lot.id_tile = self.tile.id_tile
+            lot.id_malette = self.tile.id_malette
             lot.save()
 
-    def run(self, options={}):
+    def runWithExceptions(self, options={}):
         """Run the tilling task my faverite one."""
-        if "id" in options:
-            self.pano = self._client_requestor.make(ressources.Panorama, *options["id"])
-            with self._opv_directory_manager.Open(self.pano.equirectangular_path) as (_, pano_dirpath):
-                pano_path = Path(pano_dirpath) / Const.PANO_FILENAME
 
-                self.tile(pano_path)
+        self.checkArgs(options)
+        self.pano = self._client_requestor.make(ressources.Panorama, options["id_panorama"], options["id_malette"])
+        with self._opv_directory_manager.Open(self.pano.equirectangular_path) as (_, pano_dirpath):
+            pano_path = Path(pano_dirpath) / Const.PANO_FILENAME
 
-            return json.dumps({"id": self.tile.id})
+            self.tile(pano_path)
+
+        return self.tile.id

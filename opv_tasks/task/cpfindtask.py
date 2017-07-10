@@ -17,14 +17,13 @@
 # Description: Find control points using hugin cpfind.
 
 import os
-import json
 from shutil import copyfile
 from path import Path
 from opv_api_client import ressources
 
 from opv_tasks.const import Const
 
-from opv_tasks.task import Task, TaskReturn, TaskStatusCode
+from opv_tasks.task import Task, TaskException
 
 
 class CpfindTask(Task):
@@ -45,6 +44,8 @@ class CpfindTask(Task):
         "--sieve1height", "25",
         "--sieve1size", "625",
         "--kdtreesteps", "300"]
+
+    requiredArgsKeys = ["id_lot", "id_malette"]
 
     def searchCP(self):
         """Run cli CP search."""
@@ -94,32 +95,22 @@ class CpfindTask(Task):
 
         self.logger.debug("Created CP :" + repr(self.cp))
 
-    def run(self, options={}):
+    def runWithExceptions(self, options={}):
         """Run Cp find task."""
 
-        if "id_lot" in options and "id_malette" in options:
-            self.taskReturn = TaskReturn(taskName=self.TASK_NAME, inputData=options)
-            self.lot = self._client_requestor.make(ressources.Lot, options['id_lot'], options['id_malette'])
-            try:
-                self.findCP()
-            except CpFindException as e:
-                self.taskReturn.statusCode = TaskStatusCode.ERROR
-                self.taskReturn.error = "cpfind failled for lot : " + str(self.lot.id) + " with de following cmd options : " + str(e.cliOptions)
-                self.logger.error(self.taskReturn.error)
+        self.checkArgs(options)
+        self.lot = self._client_requestor.make(ressources.Lot, options['id_lot'], options['id_malette'])
+        self.findCP()
 
-                # TODO handle more I/O exception
-
-            self.taskReturn.outputData = self.cp.id
-
-        return self.taskReturn
+        return self.cp.id
 
 
-class CpFindException(Exception):
+class CpFindException(TaskException):
     """
     Raised when cpfind cmd failled.
     """
     def __init__(self, cliOptions):
         self.cliOptions = cliOptions
 
-    def __str__(self):
+    def getErrorMessage(self):
         return "cpfind failled with the following options : " + repr(copyfile)

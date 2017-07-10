@@ -20,8 +20,13 @@ import subprocess
 import logging
 import threading
 
+from opv_tasks.task import TaskReturn, TaskStatusCode, TaskException
+
 class Task:
     """An abstract class, you must redefine the run method."""
+
+    TASK_NAME = None            # TaskName should be set in the implementation
+    requiredArgsKeys = None     # Required arguments key for checkArgs
 
     def __init__(self, client_requestor, opv_directorymanager_client):
         """
@@ -39,15 +44,61 @@ class Task:
         self.logger = logging.getLogger(logger_name)  # Used in subclasses
         self.shell_logger = logging.getLogger(shell_logger_name)  # Used when you use _run_cli
 
+    def checkArgs(self, options):
+        """
+        Check the arguments/options given to a task.run.
+        This method is based on a list of required argument self.requiredArgsKeys which should be defined by the implementation class.
+
+        :param options: Actual option to be checked.
+        :raise TaskInvalidArgumentsException: Exeption when some arguments are missing.
+        """
+        missingArguments = []
+        if self.requiredArgsKeys is not None:
+            for k in self.requiredArgsKeys:
+                if not(k in options):
+                    missingArguments.append(k)
+
+        if len(missingArguments) > 0:
+            raise TaskInvalidArgumentsException(requiredArguements=self.requiredArgsKeys, invalidArguments=missingArguments)
+
+        return True
+
+    def runWithExceptions(self, inputData):
+        """
+        Run task that doesn't use TaskReturn but might raise some exceptions.
+        The exceptions are TaskExceptions and will be encapsulated into.
+        We should implement this method or overide the run method.
+
+        :param inputData: Task input data.
+        :return: Shloud return Task ouput data.
+        """
+        raise NotImplementedError
+
     def run(self, options={}):
         """
-        Run the task.
+        Run the task, will trap all TaskException into a TaskReturn object.
+        If you don't like the way we handle these exception just overidde this method.
 
         :param options: Options to use
         :return: TaskReturn
         :raise
         """
-        raise NotImplementedError
+
+        if self.TASK_NAME is None:
+            raise NotImplemented("TASK_NAME is not implemented in task implementation.")
+
+        taskReturn = TaskReturn(taskName=self.TASK_NAME)
+
+        # Running task and handeling exceptions
+        try:
+            taskOutput = self.runWithExceptions(options=options)
+            taskReturn.outputData = taskOutput
+            taskReturn.statusCode = TaskStatusCode.SUCCESS
+        except TaskException as taskException:
+            taskReturn.error = taskException.getErrorMessage()
+            taskReturn.statusCode = TaskStatusCode.ERROR
+
+        return taskReturn
 
     def _run_cli(self, cmd, args=[], stdout_level=logging.INFO, stderr_level=logging.WARNING):
         """
@@ -79,3 +130,20 @@ class Task:
         proc.wait()
 
         return proc.returncode
+
+class TaskInvalidArgumentsException(TaskException):
+    """ Raised when some arguments/options are missing or invalid"""
+
+    def __init__(self, requiredArguements=[], invalidArguments=[]):
+        """
+        Init exception with requiredArguments and invalidArguments.
+
+        :param requiredArguments:   List of all the requiredArguments.
+        :param invalidArguments:    List of all the invalidArguments.
+        """
+        self.requiredArguments = requiredArguements
+        self.invalidArguments = invalidArguments
+
+    def getErrorMessage(self):
+        return "Invalid Arguments, requiredArguments are the following : " + repr(self.requiredArguments) + \
+            " these arguments are invalid or missing : " + str(self.invalidArguments)

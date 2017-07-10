@@ -22,9 +22,7 @@ from path import Path
 
 from opv_api_client import ressources
 
-from opv_tasks.task import Task
-from opv_tasks.task import TaskReturn
-from opv_tasks.task import TaskStatusCode
+from opv_tasks.task import Task, TaskStatusCode, TaskException
 
 
 class RotateTask(Task):
@@ -35,6 +33,7 @@ class RotateTask(Task):
     """
 
     TASK_NAME = "rotate"
+    requiredArgsKeys = ["id_lot", "id_malette"]
 
     def getPictureSizes(self, picPath):
         """Return (width, height) of the specified picture (picPath)."""
@@ -59,6 +58,7 @@ class RotateTask(Task):
         cli_code = self._run_cli('mogrify', ["-rotate", str(rotation_angle), picPath])
 
         if cli_code != 0:
+            self.logger.debug("Rotate exceptions")
             raise RotateException(picPath, rotation_angle)
 
     def rotateToPortrait(self, picPath):
@@ -73,33 +73,23 @@ class RotateTask(Task):
                 for apnNo in range(0, 6):
                     pic_path = Path(dir_path) / "APN{}.JPG".format(apnNo)
                     if os.path.exists(pic_path):
-                        try:
-                            self.rotateToPortrait(pic_path)
-                        except RotateException as e:
-                            self.taskReturn.statusCode = TaskStatusCode.ERROR
-                            self.taskReturn.error = str(e)
+                        self.rotateToPortrait(pic_path)
                     else:
-                        self.taskReturn.statusCode = TaskStatusCode.ERROR
-                        self.taskReturn.error = "Picture file for APN" + str(apnNo) + \
-                            " not found (uuid : " + str(uuid) + " / lot.id : " + str(self.lot.id) + ")"
-                        self.logger.error(self.taskReturn.error)
-                        return
+                        raise RotateException(filePath=dir_path, rotationAngle=90)
 
-    def run(self, options={}):
+    def runWithExceptions(self, options={}):
         """
             Run a rotatetask.
             Requires id_lot and id_malette as inputData.
         """
-        if "id_lot" in options and "id_malette" in options:
-            self.taskReturn = TaskReturn(taskName=self.TASK_NAME, inputData=options)
-            self.lot = self._client_requestor.make(ressources.Lot, options['id_lot'], options['id_malette'])
-            self.rotateToPortraitAll()
-            self.taskReturn.outputData = options
-
-        return self.taskReturn
+        self.logger.debug("runWithExceptions start")
+        self.checkArgs(options)
+        self.lot = self._client_requestor.make(ressources.Lot, options['id_lot'], options['id_malette'])
+        self.rotateToPortraitAll()
+        return self.lot.id
 
 
-class RotateException(Exception):
+class RotateException(TaskException):
     """
     Raised when file rotation fail.
     """
@@ -108,5 +98,5 @@ class RotateException(Exception):
         self.filePath = filePath
         self.rotationAngle = rotationAngle
 
-    def __str__(self):
+    def getErrorMessage(self):
         return "Failled to rotate " + str(self.filePath) + ", with rotation angle : " + str(self.rotationAngle)
