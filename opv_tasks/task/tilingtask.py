@@ -73,21 +73,12 @@ class TilingTask(Task):
             self.tile.panorama = self.pano
             self.tile.create()
 
-            self.logger.debug("tile")
-            self.logger.debug(self.tile)
-
-            self.logger.debug("panorama")
-            self.logger.debug(self.pano)
-            self.logger.debug("CP")
             self.pano.cp.get()
-            self.logger.debug(self.pano.cp)
-            self.logger.debug("Lot")
             self.pano.cp.lot.get()
             self.logger.debug(self.pano.cp.lot)
             lot = self.pano.cp.lot
 
-            lot.id_tile = self.tile.id_tile
-            lot.id_malette = self.tile.id_malette
+            lot.tile = self.tile.id
             lot.save()
 
     def runWithExceptions(self, options={}):
