@@ -17,14 +17,13 @@
 # Description: Find control points using hugin cpfind.
 
 import os
-import json
 from shutil import copyfile
 from path import Path
 from opv_api_client import ressources
 
 from opv_tasks.const import Const
 
-from opv_tasks.task import Task
+from opv_tasks.task import Task, TaskException
 
 
 class CpfindTask(Task):
@@ -33,6 +32,8 @@ class CpfindTask(Task):
 
     As they need to be in portrait mode.
     """
+
+    TASK_NAME = "cpfind"
 
     BASE_TEMPLATE_REL_PATH = "../ressources/base.pto"
     TMP_PTONAME = "cp.pto"
@@ -43,6 +44,8 @@ class CpfindTask(Task):
         "--sieve1height", "25",
         "--sieve1size", "625",
         "--kdtreesteps", "300"]
+
+    requiredArgsKeys = ["id_lot", "id_malette"]
 
     def searchCP(self):
         """Run cli CP search."""
@@ -61,7 +64,11 @@ class CpfindTask(Task):
             options.append(tmp_output_pto)
             options.append(local_tmp_pto)          # input pto file
             self.logger.debug("Starting CP search with options" + " ".join(options))
-            self._run_cli("cpfind", options)
+            exitCode = self._run_cli("cpfind", options)
+            self.logger.debug("cpfind exit code : " + str(exitCode))
+
+            if exitCode != 0:
+                raise CpFindException(options)
 
             cp_pto_dest = Path(self.ptoDirMan.local_directory) / Const.CP_PTO_FILENAME
             self.logger.debug("Moving " + local_tmp_pto + " -> " + cp_pto_dest + " (UUID : " + self.ptoDirMan.uuid + ")")
@@ -86,13 +93,24 @@ class CpfindTask(Task):
         self.ptoDirMan.save()
         self.cp.create()
 
-    def run(self, options={}):
+        self.logger.debug("Created CP :" + repr(self.cp))
+
+    def runWithExceptions(self, options={}):
         """Run Cp find task."""
-        idCp = None
 
-        if "id" in options:
-            self.lot = self._client_requestor.make(ressources.Lot, *options["id"])
-            self.findCP()
-            idCp = self.cp.id
+        self.checkArgs(options)
+        self.lot = self._client_requestor.make(ressources.Lot, options['id_lot'], options['id_malette'])
+        self.findCP()
 
-        return json.dumps({'id': idCp})
+        return self.cp.id
+
+
+class CpFindException(TaskException):
+    """
+    Raised when cpfind cmd failled.
+    """
+    def __init__(self, cliOptions):
+        self.cliOptions = cliOptions
+
+    def getErrorMessage(self):
+        return "cpfind failled with the following options : " + repr(copyfile)

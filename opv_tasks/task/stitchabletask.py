@@ -12,21 +12,21 @@
 # You should have received a copy of the GNU General Public License along
 # with this program. If not, see <http://www.gnu.org/licenses/>.
 
-# Contributors: tristan GOUGE <gouge.tristan@openpathview.fr>
+# Contributors: tristan GOUGE <gouge.tristan@openpathview.fr>, Benjamin BERNARD <benjamin.bernard@openpathview.fr>
 # Email: team@openpathview.fr
 # Description: Set in db isStichable if needed
 
-import json
-
 from path import Path
-from .task import Task
+from opv_tasks.task import Task, TaskException
 from hsi import Panorama, ifstream
 from opv_api_client import ressources
-
 from opv_tasks.const import Const
 
 class StitchableTask(Task):
     """Set in db isStichable if needed."""
+
+    TASK_NAME = "stitchable"
+    requiredArgsKeys = ["id_cp", "id_malette"]
 
     def stichable(self, proj_pto):
         """Check if a proj_pto is stichable."""
@@ -40,24 +40,63 @@ class StitchableTask(Task):
         nbPoints = 0
 
         for cp in cpv:
-            picLinkNb[cp.image1Nr] += 1
-            picLinkNb[cp.image2Nr] += 1
+            picLinkNb[self.huginPicNumber2Apnid(cp.image1Nr)] += 1
+            picLinkNb[self.huginPicNumber2Apnid(cp.image2Nr)] += 1
             nbPoints += 1
         minLinksNeeded = 4
 
-        isStitchable = all(x > minLinksNeeded for x in picLinkNb)
+        self.logger.debug("Pic links number : " + str(picLinkNb))
+        self.logger.debug("Computing stitchability")
+        isStitchable = all(x >= minLinksNeeded for x in picLinkNb)
 
         self.cp.nb_cp = nbPoints
         self.cp.stichable = isStitchable
         self.cp.save()
 
-    def run(self, options={}):
+        if not isStitchable:
+            raise NotStichableException(picLinks=picLinkNb)
+
+        self.logger.debug("CP : " + str(self.cp))
+
+    def huginPicNumber2Apnid(self, huginPicNo):
+        """
+        Associate hugin APN id to real APN number.
+
+        :param huginPicNo: Hugin image id.
+        :retrun: Real APN number ID.
+        """
+        return Const.CP_HUGIN_IMGID_2_APNID[huginPicNo]
+
+    def runWithExceptions(self, options={}):
         """Run a stichable task with options."""
-        if "id" in options:
-            self.cp = self._client_requestor.make(ressources.Cp, *options["id"])
-            with self._opv_directory_manager.Open(self.cp.pto_dir) as (_, pto_dirpath):
-                proj_pto = Path(pto_dirpath) / Const.CP_PTO_FILENAME
+        self.checkArgs(options)
 
-                self.stichable(proj_pto)
+        self.cp = self._client_requestor.make(ressources.Cp, options['id_cp'], options['id_malette'])
+        self.logger.debug("CP : " + str(self.cp))
+        with self._opv_directory_manager.Open(self.cp.pto_dir) as (_, pto_dirpath):
+            proj_pto = Path(pto_dirpath) / Const.CP_PTO_FILENAME
 
-            return json.dumps({"id": self.cp.id})
+            self.stichable(proj_pto)
+
+        return self.cp.id
+
+class NotStichableException(TaskException):
+    def __init__(self, picLinks):
+        """ Exception with picture links """
+        self.picLinks = picLinks
+
+    def getPicturesWithNotEnoughLinks(self, minLinksAccepted=4):
+        """
+        Return the list of camera that to have enough links.
+
+        :param minLinksAccepted: Minimum number of control points accepted (default is 4)
+        :return: This list of all picture that have less links/CP than minLinksAccepted.
+        """
+        picsWithNotEnughLinks = []
+        for huginPicNo, linksNb in enumerate(self.picLinks):
+            if linksNb < minLinksAccepted:
+                picsWithNotEnughLinks.append(huginPicNo)
+        return picsWithNotEnughLinks
+
+    def getErrorMessage(self):
+        return "The following pictures " + str(self.getPicturesWithNotEnoughLinks()) + " don't have enough links/CP"

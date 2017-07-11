@@ -14,13 +14,10 @@
 
 # Contributors: Benjamin BERNARD <benjamin.bernard@openpathview.fr>
 # Email: team@openpathview.fr
-# Description: Constant file.
+# Description: Status code constant.
 
+class TaskStatusCode():
+    """Task returned status code."""
 
-class Const():
-    """A class for the const why not ?."""
-
-    CP_PTO_FILENAME = "project.pto"
-    CP_HUGIN_IMGID_2_APNID = [3, 0, 1, 2, 4, 5]   # Hugin APN number correspondance to real one, 0->3, 1->0, 2->1
-    CP_SEARCHALGO_VERSION = "0.0.1"
-    PANO_FILENAME = "panorama.jpg"
+    SUCCESS = 1
+    ERROR = 2

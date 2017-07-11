@@ -12,6 +12,9 @@
 # You should have received a copy of the GNU General Public License along
 # with this program. If not, see <http://www.gnu.org/licenses/>.
 
+from opv_tasks.task.taskStatusCode import TaskStatusCode
+from opv_tasks.task.taskReturn import TaskReturn
+from opv_tasks.task.taskException import TaskException
 from opv_tasks.task.task import Task
 from opv_tasks.task.rotatetask import RotateTask
 from opv_tasks.task.cpfindtask import CpfindTask

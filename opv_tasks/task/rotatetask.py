@@ -18,12 +18,11 @@
 
 from PIL import Image
 import os
-import json
 from path import Path
 
 from opv_api_client import ressources
 
-from opv_tasks.task import Task
+from opv_tasks.task import Task, TaskStatusCode, TaskException
 
 
 class RotateTask(Task):
@@ -32,6 +31,9 @@ class RotateTask(Task):
 
     As they need to be in portrait mode.
     """
+
+    TASK_NAME = "rotate"
+    requiredArgsKeys = ["id_lot", "id_malette"]
 
     def getPictureSizes(self, picPath):
         """Return (width, height) of the specified picture (picPath)."""
@@ -53,7 +55,11 @@ class RotateTask(Task):
         Modify picture in place !
         """
         self.logger.debug("Rotate pic " + picPath + " angle : " + str(rotation_angle))
-        self._run_cli('mogrify', ["-rotate", str(rotation_angle), picPath])  # TODO : test
+        cli_code = self._run_cli('mogrify', ["-rotate", str(rotation_angle), picPath])
+
+        if cli_code != 0:
+            self.logger.debug("Rotate exceptions")
+            raise RotateException(picPath, rotation_angle)
 
     def rotateToPortrait(self, picPath):
         """Rotate a picture to portrait format if necessary."""
@@ -68,11 +74,29 @@ class RotateTask(Task):
                     pic_path = Path(dir_path) / "APN{}.JPG".format(apnNo)
                     if os.path.exists(pic_path):
                         self.rotateToPortrait(pic_path)
+                    else:
+                        raise RotateException(filePath=dir_path, rotationAngle=90)
 
-    def run(self, options={}):
-        """Run a rotatetask."""
-        if "id" in options:
-            self.lot = self._client_requestor.make(ressources.Lot, *options["id"])
-            self.rotateToPortraitAll()
+    def runWithExceptions(self, options={}):
+        """
+            Run a rotatetask.
+            Requires id_lot and id_malette as inputData.
+        """
+        self.logger.debug("runWithExceptions start")
+        self.checkArgs(options)
+        self.lot = self._client_requestor.make(ressources.Lot, options['id_lot'], options['id_malette'])
+        self.rotateToPortraitAll()
+        return self.lot.id
 
-        return json.dumps({"id": self.lot.id})
+
+class RotateException(TaskException):
+    """
+    Raised when file rotation fail.
+    """
+
+    def __init__(self, filePath, rotationAngle):
+        self.filePath = filePath
+        self.rotationAngle = rotationAngle
+
+    def getErrorMessage(self):
+        return "Failled to rotate " + str(self.filePath) + ", with rotation angle : " + str(self.rotationAngle)
