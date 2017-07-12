@@ -25,3 +25,4 @@ from opv_tasks.task.tilingtask import TilingTask
 from opv_tasks.task.photospheretask import PhotosphereTask
 from opv_tasks.task.injectcpapntask import InjectcpapnTask
 from opv_tasks.task.findnearestcptask import FindnearestcpTask
+from opv_tasks.task.makealltask import MakeallTask

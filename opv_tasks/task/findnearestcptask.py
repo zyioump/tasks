@@ -48,7 +48,6 @@ class FindnearestcpTask(Task):
         distance = self.EARTH_RADIUS * c
         return distance
 
-
     def runWithExceptions(self, options={}):
         """
         Search nearest cp stitchable to inject it.
@@ -56,10 +55,11 @@ class FindnearestcpTask(Task):
         :param options: {"id_lot": ID, "id_malette": ID}
         """
 
+        self.logger.debug("Options : " + str(options))
         self.checkArgs(options)
         lot = self._client_requestor.make(ressources.Lot, options["id_lot"], options["id_malette"])
         lot.sensors.get()
-        url = self._client_requestor._makeUrl("v1", "sensors", OrderedDict((("id_lot", options["id_lot"]), ("id_malette", options["id_malette"])))) + "/within/" + str(30)
+        url = self._client_requestor._makeUrl("v1", "sensors", OrderedDict((("id_lot", options["id_lot"]), ("id_malette", options["id_malette"])))) + "/within/" + str(10000)
         rep = requests.get(url)
         nearestSensors = rep.json()['objects']
         self.logger.debug(nearestSensors)
@@ -90,4 +90,14 @@ class FindnearestcpTask(Task):
         self.logger.debug(len(nearestSensorsWithDistanceFiltered))
 
         # finding nearest stitchable
-        
+        for sensorDist in nearestSensorsWithDistanceFiltered:
+            _, sensor = sensorDist
+            associatedLot = self._client_requestor.make(ressources.Lot, sensor['lot'][0]["id_lot"], sensor['lot'][0]["id_malette"])
+            if associatedLot.tile["id_tile"] is not None and associatedLot.tile["id_malette"] is not None:
+                self.logger.debug("Found CP " + str(associatedLot.cps[0]))
+                out = {}
+                out['id_cp'] = associatedLot.cps[0].id_cp
+                out['id_malette'] = associatedLot.cps[0].id_malette
+                return out
+
+        return None

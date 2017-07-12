@@ -28,7 +28,7 @@ class InjectcpapnTask(Task):
     Yes it's not legit ;)
     """
 
-    TASK_NAME = "injectcp"
+    TASK_NAME = "injectcpapn"
     requiredArgsKeys = ["idCpFrom", "idCpTo", "apnList"]
 
     def fetchPanorama(self, project_file):

@@ -17,7 +17,7 @@
 # Description: Set in db isStichable if needed
 
 from path import Path
-from opv_tasks.task import Task, TaskException
+from opv_tasks.task import Task, TaskException, TaskReturn, TaskStatusCode
 from hsi import Panorama, ifstream
 from opv_api_client import ressources
 from opv_tasks.const import Const
@@ -79,6 +79,18 @@ class StitchableTask(Task):
             self.stichable(proj_pto)
 
         return self.cp.id
+
+    def run(self, options={}):
+        """ """
+        try:
+            ouput = self.runWithExceptions(options=options)
+            return TaskReturn(taskName=self.TASK_NAME, statusCode=TaskStatusCode.SUCCESS, outputData=ouput, inputData=options)
+        except NotStichableException as e:
+            apnList = e.getPicturesWithNotEnoughLinks()
+            if 0 in apnList:
+                return TaskReturn(taskName=self.TASK_NAME, statusCode=TaskStatusCode.ERROR_CP_APN0, error="APN0 no CP", inputData=options, outputData=options)
+
+
 
 class NotStichableException(TaskException):
     def __init__(self, picLinks):
