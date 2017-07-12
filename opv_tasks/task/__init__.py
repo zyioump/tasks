@@ -15,7 +15,7 @@
 from opv_tasks.task.taskStatusCode import TaskStatusCode
 from opv_tasks.task.taskReturn import TaskReturn
 from opv_tasks.task.taskException import TaskException
-from opv_tasks.task.task import Task
+from opv_tasks.task.task import Task, TaskInvalidArgumentsException
 from opv_tasks.task.rotatetask import RotateTask
 from opv_tasks.task.cpfindtask import CpfindTask
 from opv_tasks.task.autooptimisertask import AutooptimiserTask
@@ -23,3 +23,6 @@ from opv_tasks.task.stitchabletask import StitchableTask
 from opv_tasks.task.stitchtask import StitchTask
 from opv_tasks.task.tilingtask import TilingTask
 from opv_tasks.task.photospheretask import PhotosphereTask
+from opv_tasks.task.injectcpapntask import InjectcpapnTask
+from opv_tasks.task.findnearestcptask import FindnearestcpTask
+from opv_tasks.task.makealltask import MakeallTask

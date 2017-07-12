@@ -21,3 +21,4 @@ class TaskStatusCode():
 
     SUCCESS = 1
     ERROR = 2
+    ERROR_CP_APN0 = 3
