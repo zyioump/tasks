@@ -27,7 +27,13 @@ from opv_tasks.const import Const
 from opv_tasks.third_party.tile import tile
 
 class TilingTask(Task):
-    """Tile the panorama."""
+    """
+    Tile the panorama, for pannellum.
+    Input format :
+        opv-task tiling '{"id_panorama": ID_PANORAMA, "id_malette": ID_MALETTE }'
+    Output format :
+        {"id_tile": ID_TILE, "id_malette": ID_MALETTE }
+    """
 
     TASK_NAME = "tiling"
     requiredArgsKeys = ["id_panorama", "id_malette"]

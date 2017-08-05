@@ -24,7 +24,13 @@ from opv_tasks.const import Const
 
 
 class StitchTask(Task):
-    """Stitch the panorama."""
+    """
+    Stitch the panorama.
+    Input format :
+        opv-task stitch '{"id_cp": ID_CP, "id_malette": ID_MALETTE }'
+    Output format :
+        {"id_panorama": ID_PANORAMA, "id_malette": ID_MALETTE }
+    """
 
     TASK_NAME = "stitch"
     requiredArgsKeys = ['id_cp', 'id_malette']

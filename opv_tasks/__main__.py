@@ -1,12 +1,11 @@
 import json
 import logging
 from docopt import docopt
-from .utils import find_task
+from .utils import find_task, generateHelp
 from opv_directorymanagerclient import DirectoryManagerClient, Protocol
 from opv_api_client import RestClient
 
-# tasks = ["rotate", "cpfind", "autooptimiser", "stitchable", "stitch", "photosphere", "tiling"]
-tasks = ["rotate", "cpfind", "autooptimiser", "stitchable", "stitch", "photosphere", "tiling"]
+tasks = ["makeall", "rotate", "cpfind", "autooptimiser", "stitchable", "stitch", "photosphere", "tiling", "injectcpapn", "findnearestcp"]
 
 __doc__ = """ Task executor, will execute some task with input datas.
 
@@ -17,10 +16,12 @@ Usage:
 Options:
     -h --help                Show help.
     --db-rest=<str>          API rest server [default: http://localhost:5000]
-    --dir-manager=<str>      API for directory manager [default: http://localhost:5001]
+    --dir-manager=<str>      API for directory manager [default: http://localhost:5005]
     --debug                  Debug mode.
 
-Task are in: run_all, """ + ', '.join(tasks)
+Sub commands/tasks are :
+
+""" + "\n\n".join([generateHelp(taskName) for taskName in tasks])
 
 def main():
     """Main function."""

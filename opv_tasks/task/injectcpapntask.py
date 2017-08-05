@@ -24,8 +24,14 @@ from opv_tasks.const import Const
 
 class InjectcpapnTask(Task):
     """
-    Inject control points from a cp to an other.
-    Yes it's not legit ;)
+    Inject keypoints(control points) taken from CpFrom to CpTo for specified APN id.
+    Optionnally you set deleteAllCp to True, this will remove original keypoints and replace with those from CpFrom.
+
+    Yes it's not legit ;).
+    Input format :
+        opv-task injectcpapn '{ "idCpFrom"; {"id_cp": IDFrom, "id_malette": IDFrom}, "idCpTo"; {"id_cp": IDTo, "id_malette": IDTo}, "apnList": [0, 2], "deleteAllCp": True }'
+    Output format :
+        {"id_cp": IDTo, "id_malette": IDTo }
     """
 
     TASK_NAME = "injectcpapn"

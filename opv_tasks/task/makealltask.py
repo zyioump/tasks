@@ -21,6 +21,13 @@ from opv_api_client import ressources, Filter
 from opv_tasks.utils import find_task
 
 class MakeallTask(Task):
+    """
+    Run all lot/panorama related tasks. Takes the same <input-data> as rotate (id_lot and id_malette needed).
+    Input format :
+        opv-task makeall '{"id_lot": ID_LOT, "id_malette": ID_MALETTE }'
+    Output format :
+        {"id_lot": ID_LOT, "id_malette": ID_MALETTE }
+    """
     TASK_NAME = "makeall"
     requiredArgsKeys = ["id_cp", "id_malette"]
 

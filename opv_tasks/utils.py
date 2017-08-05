@@ -18,7 +18,7 @@
 
 import sys
 import subprocess
-
+import logging
 
 def run_cli(cmd, args=[], stdout=sys.stdout, stderr=subprocess.STDOUT):
     """
@@ -44,3 +44,15 @@ def find_task(taskName):
         return task
     except (ImportError, AttributeError) as e:
         return None  # Task not found
+
+def generateHelp(taskName):
+    Task = find_task(taskName)
+    lines = Task.__doc__.split("\n")
+    lines = [l for l in lines if not l.isspace() and '' != l]
+    baseLeadingSpaces = len(lines[0]) - len(lines[0].lstrip(' '))
+    baseSpaces = "    "                         # base margin
+    descriptionSpaces = "                "      # padding between command description lines
+    linesStriped = [l[baseLeadingSpaces:] for l in lines]   # removing margin for __doc__
+    firstline = baseSpaces + taskName + ' ' * (len(descriptionSpaces) - len(taskName)) + linesStriped[0]
+    othersLines = [baseSpaces + descriptionSpaces + l for l in linesStriped[1:]]
+    return firstline + "\n" + "\n".join(othersLines)

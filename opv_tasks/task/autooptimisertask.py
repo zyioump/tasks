@@ -27,7 +27,13 @@ from opv_tasks.task import Task, TaskException
 
 
 class AutooptimiserTask(Task):
-    """Optimise CP with cli autooptimiser."""
+    """
+    Optimise CP with cli autooptimiser. Takes CP in input (id_cp and id_malette needed).
+    Input format :
+        opv-task autooptimiser '{"id_cp": ID_CP, "id_malette": ID_MALETTE }'
+    Output format :
+        {"id_cp": ID_CP, "id_malette": ID_MALETTE }
+    """
 
     TASK_NAME = "autooptimiser"
 
