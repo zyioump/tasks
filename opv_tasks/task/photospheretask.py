@@ -27,6 +27,7 @@ from opv_tasks.const import Const
 from libxmp import XMPFiles, consts
 from PIL import Image
 
+import logging
 
 class PhotosphereTask(Task):
     """
@@ -87,11 +88,10 @@ class PhotosphereTask(Task):
         lat_deg = self.to_deg(self.panorama.cp.lot.sensors.gps_pos["coordinates"][0], ["S", "N"])
         lng_deg = self.to_deg(self.panorama.cp.lot.sensors.gps_pos["coordinates"][1], ["W", "E"])
 
-        os.system("exiftool -exif:gpslatitude='"+str(lat_deg[0])+" "+str(lat_deg[1])+" "+str(lat_deg[2])+"' -exif:gpslatituderef="+str(lat_deg[3])+" "+picture_path)
-        os.system("exiftool -exif:gpslongitude='"+str(lng_deg[0])+" "+str(lng_deg[1])+" "+str(lng_deg[2])+"' -exif:gpslongituderef="+str(lng_deg[3])+" "+picture_path)
-        os.system("exiftool -exif:gpsaltitude='"+str(self.panorama.cp.lot.sensors.gps_pos["coordinates"][2])+"' "+picture_path)
-
-        os.system("rm "+picture_path+"_original")
+        self._run_cli("exiftool",["-exif:gpslatitude='"+str(lat_deg[0])+" "+str(lat_deg[1])+" "+str(lat_deg[2])+"'", "-exif:gpslatituderef="+str(lat_deg[3]), picture_path], stdout_level=logging.DEBUG, stderr_level=logging.DEBUG)
+        self._run_cli("exiftool",["-exif:gpslongitude='"+str(lng_deg[0])+" "+str(lng_deg[1])+" "+str(lng_deg[2])+"'", "-exif:gpslongituderef="+str(lng_deg[3]), picture_path], stdout_level=logging.DEBUG, stderr_level=logging.DEBUG)
+        self._run_cli("exiftool",["-exif:gpsaltitude='"+str(self.panorama.cp.lot.sensors.gps_pos["coordinates"][2])+"'", picture_path], stdout_level=logging.DEBUG, stderr_level=logging.DEBUG)
+        self._run_cli("rm", [picture_path+"_original"], stdout_level=logging.DEBUG, stderr_level=logging.DEBUG)
 
         self.panorama.is_photosphere = True
         self.panorama.save()
