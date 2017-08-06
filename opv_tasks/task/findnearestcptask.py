@@ -37,6 +37,13 @@ class FindnearestcpTask(Task):
     EARTH_RADIUS = 6373.0
 
     def distance(self, gpsPosA, gpsPosB):
+        """
+        Compute distance in meters beween 2 gps position.
+
+        :param gpsPosA: First GPS position {"coordinates": [LAT, LON]}
+        :param gpsPosB: Second GPS position {"coordinates": [LAT, LON]}
+        :return: Distance in meters.
+        """
         # approximate radius of earth in km
         lat1 = radians(gpsPosA['coordinates'][0])
         lon1 = radians(gpsPosA['coordinates'][1])
@@ -62,19 +69,16 @@ class FindnearestcpTask(Task):
         self.logger.debug("Options : " + str(options))
         self.checkArgs(options)
         lot = self._client_requestor.make(ressources.Lot, options["id_lot"], options["id_malette"])
-        lot.sensors.get()
-        url = self._client_requestor._makeUrl("v1", "sensors", OrderedDict((("id_lot", options["id_lot"]), ("id_malette", options["id_malette"])))) + "/within/" + str(10000)
-        rep = requests.get(url)
-        nearestSensors = rep.json()['objects']
+        nearestSensors = self._client_requestor.make_all(ressources.Sensors,
+                                                         filters=(Filter.within([lot.sensors.id_sensors,
+                                                                  lot.sensors.id_malette], 30)))
         self.logger.debug(nearestSensors)
-        #nearestSensors = self._client_requestor.make_all(ressources.Sensors, filters=(Filter.within([lot.sensors.id_sensors, lot.sensors.id_malette], 30)))
-
         nearestSensorsWithDistance = []
 
         # computing distances, with tuple (dist, sensor)
         for s in nearestSensors:
             self.logger.debug(s)
-            nearestSensorsWithDistance.append((self.distance(s['gps_pos'], lot.sensors.gps_pos), s))
+            nearestSensorsWithDistance.append((self.distance(s.gps_pos, lot.sensors.gps_pos), s))
 
         # sorting it
         nearestSensorsWithDistance = sorted(nearestSensorsWithDistance, key=lambda sensorTuple: sensorTuple[0])
@@ -87,7 +91,7 @@ class FindnearestcpTask(Task):
         self.logger.debug("-- Filtering --")
         for sensorWithDistance in nearestSensorsWithDistance:
             s = sensorWithDistance[1]
-            if not(s['lot'][0]['id_lot'] == lot.id_lot and s['lot'][0]['id_malette'] == lot.id_malette):
+            if not(s.lot.id_lot == lot.id_lot and s.lot.id_malette == lot.id_malette):
                 nearestSensorsWithDistanceFiltered.append(sensorWithDistance)
 
         self.logger.debug(nearestSensorsWithDistanceFiltered)
@@ -96,12 +100,13 @@ class FindnearestcpTask(Task):
         # finding nearest stitchable
         for sensorDist in nearestSensorsWithDistanceFiltered:
             _, sensor = sensorDist
-            associatedLot = self._client_requestor.make(ressources.Lot, sensor['lot'][0]["id_lot"], sensor['lot'][0]["id_malette"])
-            if associatedLot.tile["id_tile"] is not None and associatedLot.tile["id_malette"] is not None:
+            associatedLot = sensor.lot
+            if associatedLot.tile is not None:
                 self.logger.debug("Found CP " + str(associatedLot.cps[0]))
                 out = {}
                 out['id_cp'] = associatedLot.cps[0].id_cp
                 out['id_malette'] = associatedLot.cps[0].id_malette
                 return out
 
+        # TODO should throw an exception
         return None
