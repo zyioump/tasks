@@ -24,7 +24,11 @@ import requests
 
 class FindnearestcpTask(Task):
     """
-    Find nearest cp with lot.
+    Find nearest stitchable cp. Takes lot in input (id_lot and id_malette needed).
+    Input format :
+        opv-task findnearestcp '{"id_lot": ID_LOT, "id_malette": ID_MALETTE }'
+    Output format :
+        {"id_cp": ID_CP, "id_malette": ID_MALETTE }
     """
 
     TASK_NAME = "findnearestcp"

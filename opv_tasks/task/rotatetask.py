@@ -28,8 +28,10 @@ from opv_tasks.task import Task, TaskStatusCode, TaskException
 class RotateTask(Task):
     """
     Manage rotation for source set of images.
-
-    As they need to be in portrait mode.
+    Input format :
+        opv-task rotate '{"id_lot": ID_LOT, "id_malette": ID_MALETTE }'
+    Output format :
+        {"id_lot": ID_LOT, "id_malette": ID_MALETTE }
     """
 
     TASK_NAME = "rotate"

@@ -27,7 +27,13 @@ from opv_tasks.const import Const
 from libxmp import XMPFiles, consts
 
 class PhotosphereTask(Task):
-    """Convert the panorama to google's photosphere format"""
+    """
+    Convert the panorama to google's photosphere format.
+    Input format :
+        opv-task photosphere '{"id_panorama": ID_PANORAMA, "id_malette": ID_MALETTE }'
+    Output format :
+        {"id_panorama": ID_PANORAMA, "id_malette": ID_MALETTE }
+    """
 
     TASK_NAME = "photosphere"
     requiredArgsKeys = ["id_panorama", "id_malette"]

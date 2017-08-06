@@ -23,7 +23,13 @@ from opv_api_client import ressources
 from opv_tasks.const import Const
 
 class StitchableTask(Task):
-    """Set in db isStichable if needed."""
+    """
+    Check a CP is stitchable, set in db isStichable if needed.
+    Input format :
+        opv-task stitchable '{"id_cp": ID_CP, "id_malette": ID_MALETTE }'
+    Output format :
+        {"id_cp": ID_CP, "id_malette": ID_MALETTE }
+    """
 
     TASK_NAME = "stitchable"
     requiredArgsKeys = ["id_cp", "id_malette"]

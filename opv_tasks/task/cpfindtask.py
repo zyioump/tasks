@@ -28,9 +28,11 @@ from opv_tasks.task import Task, TaskException
 
 class CpfindTask(Task):
     """
-    Manage rotation for source set of images.
-
-    As they need to be in portrait mode.
+    Find keypoints using cpfind. Takes lot in input (id_lot and id_malette needed).
+    Input format :
+        opv-task cpfind '{"id_lot": ID_LOT, "id_malette": ID_MALETTE }'
+    Output format :
+        {"id_cp": ID_CP, "id_malette": ID_MALETTE }
     """
 
     TASK_NAME = "cpfind"
