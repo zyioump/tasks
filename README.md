@@ -1,17 +1,32 @@
 # Open Path View Tasks
 
-## Todo
-
-Write this software
+All needed tasks to stich a panorama and more. Based on the [hugin](http://hugin.sourceforge.net/) stiching chain.
 
 ## Requirements
+
+This tasks requireded hugin's libraries and more. We have automated the deployment of these requirements in our Ansible scripts.
+But you can also deploy the dependencies manually.
+
+## Automated deployment with Ansible
+
+Use our playbook and deployment scripts available in [OPV_Ansible](https://github.com/OpenPathView/OPV_ansible).
+
+## Manually building the environnement
+
+### APIs
+Install and run the needed APIs :
+ - [OPV_DBRest](https://github.com/Openpathview/OPV_DBrest) : you will need to kown it's endpoint. This API will be used to store all metadata.
+ - [DirectoryManager](https://github.com/OpenPathView/DirectoryManager) : you will also need to know it's endpoint. This API is our storage API.
+
+### Host configuration
+We will use **opv_master**, we have DB_Rest and the DirectoryManager on this machine. You might set it in your /etc/hosts file.
+
+### Dependencies
 
 You will need to install :
 ```bash
 apt-get install imagemagick hugin
 ```
-You also need to have a [DirectoryManager server](https://github.com/OpenPathView/DirectoryManager) and an [OPV_DBRest server](https://github.com/OpenPathView/OPV_DBRest) running.
-These server handle campaings, lot ... data storing.
 
 ### Hugin Script Interface (HSI) module
 You also need to have the Hugin Script Interface python module. It should be install by default with hugin but migth by install for the wrong version of python.
@@ -37,16 +52,21 @@ Follow this :
 (vent) $ ln -s /usr/lib/python3/dist-packages/_hsi.so /home/benjamin/Documents/OpenPathView/code/OPV_Tasks/.venv/OPV_Tasks/lib/python3.5/site-packages/ # make symbolic link
 ```
 
-## Install
+### Install
 ```bash
-pip install -r requirements.txt
+cd OPV_Tasks
 python setup.py install
 ```
 
-## Rotate Task
-Will rotate a lot (it's 6 pictures) in portrait mode.
+## Using opv-task
+
+You migth need some data to play with it, use [OPV_importdata](https://github.com/OpenPathView/OPV_importdata#importing-test-dataset) to import our test set.
+
 ```bash
-bin/opv-task-rotate 53 --debug
+# Get the help
+opv-task -h
+# Stitch a panorama lot 130 / id malette 15
+opv-task makeall '{"id_lot": 130, "id_malette": 15 }' --db-rest=http://opv_master:5000 --dir-manager=http://opv_master:5005
 ```
 
 ## License
