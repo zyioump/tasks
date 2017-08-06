@@ -89,6 +89,7 @@ class PhotosphereTask(Task):
 
         os.system("exiftool -exif:gpslatitude='"+str(lat_deg[0])+" "+str(lat_deg[1])+" "+str(lat_deg[2])+"' -exif:gpslatituderef="+str(lat_deg[3])+" "+picture_path)
         os.system("exiftool -exif:gpslongitude='"+str(lng_deg[0])+" "+str(lng_deg[1])+" "+str(lng_deg[2])+"' -exif:gpslongituderef="+str(lng_deg[3])+" "+picture_path)
+        os.system("exiftool -exif:gpsaltitude='"+str(self.panorama.cp.lot.sensors.gps_pos["coordinates"][2])+"' "+picture_path)
 
         os.system("rm "+picture_path+"_original")
 
