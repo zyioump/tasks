@@ -16,7 +16,7 @@
 # Email: team@openpathview.fr
 
 import json
-from PIL import Image
+import os
 
 from path import Path
 from .task import Task
@@ -25,6 +25,9 @@ from opv_api_client import ressources
 from opv_tasks.const import Const
 
 from libxmp import XMPFiles, consts
+from PIL import Image
+
+import logging
 
 class PhotosphereTask(Task):
     """
@@ -37,6 +40,20 @@ class PhotosphereTask(Task):
 
     TASK_NAME = "photosphere"
     requiredArgsKeys = ["id_panorama", "id_malette"]
+
+    def to_deg(self, value, loc):
+        if value < 0:
+            loc_value = loc[0]
+        elif value > 0:
+            loc_value = loc[1]
+        else:
+            loc_value = ""
+        abs_value = abs(value)
+        deg =  int(abs_value)
+        t1 = (abs_value-deg)*60
+        min = int(t1)
+        sec = round((t1 - min)* 60, 5)
+        return (deg, min, sec, loc_value)
 
     def convert(self, picture_dir):
         picture_path = picture_dir / Const.PANO_FILENAME
@@ -67,6 +84,14 @@ class PhotosphereTask(Task):
         xmpfile.can_put_xmp(xmp)
         xmpfile.put_xmp(xmp)
         xmpfile.close_file()
+
+        lat_deg = self.to_deg(self.panorama.cp.lot.sensors.gps_pos["coordinates"][0], ["S", "N"])
+        lng_deg = self.to_deg(self.panorama.cp.lot.sensors.gps_pos["coordinates"][1], ["W", "E"])
+
+        self._run_cli("exiftool",["-exif:gpslatitude='"+str(lat_deg[0])+" "+str(lat_deg[1])+" "+str(lat_deg[2])+"'", "-exif:gpslatituderef="+str(lat_deg[3]), picture_path], stdout_level=logging.DEBUG, stderr_level=logging.DEBUG)
+        self._run_cli("exiftool",["-exif:gpslongitude='"+str(lng_deg[0])+" "+str(lng_deg[1])+" "+str(lng_deg[2])+"'", "-exif:gpslongituderef="+str(lng_deg[3]), picture_path], stdout_level=logging.DEBUG, stderr_level=logging.DEBUG)
+        self._run_cli("exiftool",["-exif:gpsaltitude='"+str(self.panorama.cp.lot.sensors.gps_pos["coordinates"][2])+"'", picture_path], stdout_level=logging.DEBUG, stderr_level=logging.DEBUG)
+        self._run_cli("rm", [picture_path+"_original"], stdout_level=logging.DEBUG, stderr_level=logging.DEBUG)
 
         self.panorama.is_photosphere = True
         self.panorama.save()
