@@ -68,8 +68,8 @@ class StitchTask(Task):
         self.checkArgs(options)
         self.cp = self._client_requestor.make(ressources.Cp, options["id_cp"], options["id_malette"])
 
-        if not self.cp.stichable:
-            raise InvalidNotSitchaleException(self.cp.id)
+        #if not self.cp.stichable:
+        #    raise InvalidNotSitchaleException(self.cp.id)
 
         with self._opv_directory_manager.Open(self.cp.pto_dir) as (_, pto_dirpath):
             proj_pto = Path(pto_dirpath) / Const.CP_PTO_FILENAME

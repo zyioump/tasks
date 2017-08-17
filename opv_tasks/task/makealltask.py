@@ -49,7 +49,7 @@ class MakeallTask(Task):
             :return:
         """
 
-        tasks = ["rotate", "cpfind", "autooptimiser", "stitchable", "stitch", "photosphere", "tiling"]
+        tasks = [ "cpfind", "autooptimiser", "stitch"]
         inputData = options
         for task in tasks:
             self.logger.info("Starting task %s" % task)
